@@ -139,3 +139,12 @@ func verifyMAC(key, mac, data []byte) bool {
 	expectedMAC := h.Sum(nil)
 	return hmac.Equal(mac, expectedMAC)
 }
+
+type Message1 struct {
+	Text string
+}
+
+type Message2 struct {
+	Text   string
+	Number int
+}
