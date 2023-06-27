@@ -21,7 +21,7 @@ type Manager struct {
 	Connection *net.UDPConn
 }
 
-func initializeManager() (Manager, error) {
+func InitializeManager() (Manager, error) {
 
 	var addr *net.UDPAddr
 	var conn *net.UDPConn
@@ -40,7 +40,7 @@ func initializeManager() (Manager, error) {
 	return Manager{Address: addr, Connection: conn}, nil
 }
 
-func (cm *Manager) run() {
+func (cm *Manager) Run() {
 
 	defer cm.Connection.Close()
 
@@ -81,7 +81,7 @@ func (cm *Manager) run() {
 
 }
 
-func Communication_initializeProtocol() {
+func InitializeProtocol() {
 
 	gob.Register(Message1{})
 	gob.Register(Message2{})
