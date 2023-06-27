@@ -16,12 +16,12 @@ const (
 	key = "0123456789abcdef"
 )
 
-type CommunicationManager struct {
+type Manager struct {
 	Address    *net.UDPAddr
 	Connection *net.UDPConn
 }
 
-func Communication_initializeCommunicationManager() (CommunicationManager, error) {
+func initializeManager() (Manager, error) {
 
 	var addr *net.UDPAddr
 	var conn *net.UDPConn
@@ -29,18 +29,18 @@ func Communication_initializeCommunicationManager() (CommunicationManager, error
 
 	addr, addrError = net.ResolveUDPAddr("udp", ":8080")
 	if addrError != nil {
-		return CommunicationManager{}, addrError
+		return Manager{}, addrError
 	}
 
 	conn, connError = net.ListenUDP("udp", addr)
 	if connError != nil {
-		return CommunicationManager{}, connError
+		return Manager{}, connError
 	}
 
-	return CommunicationManager{Address: addr, Connection: conn}, nil
+	return Manager{Address: addr, Connection: conn}, nil
 }
 
-func (cm *CommunicationManager) run() {
+func (cm *Manager) run() {
 
 	defer cm.Connection.Close()
 

@@ -2,13 +2,11 @@ package main
 
 import (
 	"time"
-
-	"github.com/kukykuk-navigation/communication"
 )
 
 func main() {
 
-	CommunicationManager, err := communication.Communication_initializeCommunicationManager()
+	CommunicationManager, err := communication.initializeManager()
 	if err != nil {
 		panic(err)
 	}
