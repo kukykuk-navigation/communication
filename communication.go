@@ -81,6 +81,45 @@ func (cm *Manager) Run() {
 
 }
 
+func (m *Manager) Send(in_sAddress string) {
+
+	// Connect to the server
+	conn, err := net.Dial("udp", in_sAddress)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	// Create a message structure
+	msg := Message1{
+		Text: "Hello, server!",
+	}
+
+	// Serialize the message structure to Gob
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	if err := enc.Encode(msg); err != nil {
+		panic(err)
+	}
+
+	// Encrypt the Gob-encoded message
+	encryptedData, err := encrypt([]byte(key), buf.Bytes())
+	if err != nil {
+		panic(err)
+	}
+
+	// Calculate MAC
+	mac := generateMAC([]byte(key), encryptedData)
+
+	// Append MAC to the encrypted message
+	encryptedDataWithMAC := append(mac, encryptedData...)
+
+	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
+		panic(err)
+	}
+
+}
+
 func InitializeProtocol() {
 
 	gob.Register(Message1{})
