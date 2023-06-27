@@ -10,7 +10,6 @@ import (
 	"encoding/gob"
 	"fmt"
 	"net"
-	"time"
 )
 
 const (
@@ -86,21 +85,6 @@ func Communication_initializeProtocol() {
 
 	gob.Register(Message1{})
 	gob.Register(Message2{})
-
-}
-
-func main() {
-
-	CommunicationManager, err := Communication_initializeCommunicationManager()
-	if err != nil {
-		panic(err)
-	}
-
-	go CommunicationManager.run()
-
-	for {
-		time.Sleep(1 * time.Second)
-	}
 
 }
 
