@@ -14,50 +14,48 @@ import (
 )
 
 const (
-	key = "0123456789abcdef" // 16-byte encryption key
+	key = "0123456789abcdef"
 )
 
-type Message struct {
-	Text string
+type CommunicationManager struct {
+	Address    *net.UDPAddr
+	Connection *net.UDPConn
 }
 
-func main() {
-	// Register the Message type with gob
-	gob.Register(Message1{})
-	gob.Register(Message2{})
+func Communication_initializeCommunicationManager() (CommunicationManager, error) {
 
-	// Start a server to listen for incoming UDP packets
-	go startServer()
+	var addr *net.UDPAddr
+	var conn *net.UDPConn
+	var addrError, connError error
 
-	for {
-		time.Sleep(1 * time.Second)
+	addr, addrError = net.ResolveUDPAddr("udp", ":8080")
+	if addrError != nil {
+		return CommunicationManager{}, addrError
 	}
+
+	conn, connError = net.ListenUDP("udp", addr)
+	if connError != nil {
+		return CommunicationManager{}, connError
+	}
+
+	return CommunicationManager{Address: addr, Connection: conn}, nil
 }
 
-func startServer() {
+func (cm *CommunicationManager) run() {
 
-	addr, err := net.ResolveUDPAddr("udp", ":8081")
-	if err != nil {
-		panic(err)
-	}
-
-	conn, err := net.ListenUDP("udp", addr)
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close()
+	defer cm.Connection.Close()
 
 	buffer := make([]byte, 1024)
 
 	for {
-		n, addr, err := conn.ReadFromUDP(buffer)
+		n, addr, err := cm.Connection.ReadFromUDP(buffer)
 		if err != nil {
 			panic(err)
 		}
 
 		receivedMsgWithMAC := buffer[:n]
-		receivedMAC := receivedMsgWithMAC[:32]          // First 32 bytes are MAC
-		receivedEncryptedMsg := receivedMsgWithMAC[32:] // Remaining bytes are encrypted message
+		receivedMAC := receivedMsgWithMAC[:32]
+		receivedEncryptedMsg := receivedMsgWithMAC[32:]
 
 		// Verify MAC
 		if verifyMAC([]byte(key), receivedMAC, receivedEncryptedMsg) {
@@ -69,7 +67,7 @@ func startServer() {
 			}
 
 			// Deserialize the Gob-encoded data into the original structure
-			var receivedMsg Message
+			var receivedMsg Message1
 			dec := gob.NewDecoder(bytes.NewReader(decryptedMsg))
 			if err := dec.Decode(&receivedMsg); err != nil {
 				panic(err)
@@ -81,6 +79,29 @@ func startServer() {
 			fmt.Printf("Received message from %s: MAC verification failed.\n", addr)
 		}
 	}
+
+}
+
+func Communication_initializeProtocol() {
+
+	gob.Register(Message1{})
+	gob.Register(Message2{})
+
+}
+
+func main() {
+
+	CommunicationManager, err := Communication_initializeCommunicationManager()
+	if err != nil {
+		panic(err)
+	}
+
+	go CommunicationManager.run()
+
+	for {
+		time.Sleep(1 * time.Second)
+	}
+
 }
 
 func encrypt(key, plaintext []byte) ([]byte, error) {
