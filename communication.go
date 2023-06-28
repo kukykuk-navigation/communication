@@ -13,21 +13,24 @@ import (
 )
 
 const (
-	key = "0123456789abcdef"
+	default_key = "0123456789abcdef"
 )
 
 type Manager struct {
-	Address    *net.UDPAddr
-	Connection *net.UDPConn
+	SystemID      string
+	Address       *net.UDPAddr
+	Connection    *net.UDPConn
+	Key           string
+	packetCounter uint
 }
 
-func InitializeManager() (Manager, error) {
+func InitializeManager(in_systemid, in_port, in_key string) (Manager, error) {
 
 	var addr *net.UDPAddr
 	var conn *net.UDPConn
 	var addrError, connError error
 
-	addr, addrError = net.ResolveUDPAddr("udp", ":8080")
+	addr, addrError = net.ResolveUDPAddr("udp", ":"+in_port)
 	if addrError != nil {
 		return Manager{}, addrError
 	}
@@ -37,42 +40,72 @@ func InitializeManager() (Manager, error) {
 		return Manager{}, connError
 	}
 
-	return Manager{Address: addr, Connection: conn}, nil
+	var key string
+
+	if in_key == "" {
+		key = default_key
+	} else {
+		key = in_key
+	}
+
+	return Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, packetCounter: 0}, nil
 }
 
-func (cm *Manager) Run() {
+func (m *Manager) Run() {
 
-	defer cm.Connection.Close()
+	defer m.Connection.Close()
 
 	buffer := make([]byte, 1024)
 
 	for {
-		n, addr, err := cm.Connection.ReadFromUDP(buffer)
+		n, addr, err := m.Connection.ReadFromUDP(buffer)
 		if err != nil {
 			panic(err)
 		}
 
-		receivedMsgWithMAC := buffer[:n]
-		receivedMAC := receivedMsgWithMAC[:32]
-		receivedEncryptedMsg := receivedMsgWithMAC[32:]
+		receivedPacketWithMAC := buffer[:n]
+		receivedMAC := receivedPacketWithMAC[:32]
+		receivedEncryptedPacket := receivedPacketWithMAC[32:]
 
 		// Verify MAC
-		if verifyMAC([]byte(key), receivedMAC, receivedEncryptedMsg) {
+		if verifyMAC([]byte(m.Key), receivedMAC, receivedEncryptedPacket) {
 
 			// Decrypt the received data
-			decryptedMsg, err := decrypt([]byte(key), receivedEncryptedMsg)
-			if err != nil {
-				panic(err)
+			decryptedPacket, decryptErr := decrypt([]byte(m.Key), receivedEncryptedPacket)
+			if decryptErr != nil {
+				panic(decryptErr)
 			}
 
-			// Deserialize the Gob-encoded data into the original structure
-			var receivedMsg Message1
-			dec := gob.NewDecoder(bytes.NewReader(decryptedMsg))
-			if err := dec.Decode(&receivedMsg); err != nil {
-				panic(err)
+			// Decode the decrypted packet
+			var receivedPacket Communication_Packet
+			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
+			decodeErr := dec.Decode(&receivedPacket)
+			if decodeErr != nil {
+				// Handle
+				panic(decodeErr)
 			}
 
-			fmt.Printf("Received message from %s: %+v\n", addr, receivedMsg)
+			// Decoding based on the type of message
+			switch m := receivedPacket.Message.(type) {
+			case Communication_Message_Ping:
+				// Handle decoding for message type 1
+				err := dec.Decode(&m)
+				fmt.Printf("Received message: %+v\n", m)
+				// Handle error
+				if err != nil {
+					panic(err)
+				}
+			case Communication_Message_ACK:
+				// Handle decoding for message type 2
+				err := dec.Decode(&m)
+				fmt.Printf("Received message: %+v\n", m)
+				// Handle error
+				if err != nil {
+					panic(err)
+				}
+			}
+
+			fmt.Printf("Received message from %s:\n", addr)
 
 		} else {
 			fmt.Printf("Received message from %s: MAC verification failed.\n", addr)
@@ -91,8 +124,8 @@ func (m *Manager) Send(in_sAddress string) {
 	defer conn.Close()
 
 	// Create a message structure
-	msg := Message1{
-		Text: "Hello, server!",
+	msg := Communication_Message_Ping{
+		SenderID: "TEST",
 	}
 
 	// Serialize the message structure to Gob
@@ -103,13 +136,54 @@ func (m *Manager) Send(in_sAddress string) {
 	}
 
 	// Encrypt the Gob-encoded message
-	encryptedData, err := encrypt([]byte(key), buf.Bytes())
+	encryptedData, err := encrypt([]byte(m.Key), buf.Bytes())
 	if err != nil {
 		panic(err)
 	}
 
 	// Calculate MAC
-	mac := generateMAC([]byte(key), encryptedData)
+	mac := generateMAC([]byte(m.Key), encryptedData)
+
+	// Append MAC to the encrypted message
+	encryptedDataWithMAC := append(mac, encryptedData...)
+
+	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
+		panic(err)
+	}
+
+}
+
+func (m *Manager) Send_Ping(in_sAddress string) {
+
+	// Connect to the server
+	conn, err := net.Dial("udp", in_sAddress)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	var buf bytes.Buffer
+	encoder := gob.NewEncoder(&buf)
+
+	packet := Communication_Packet{
+		Counter:  m.packetCounter,
+		SenderID: m.SystemID,
+		Message:  Communication_Message_Ping{},
+	}
+
+	// Serialize the message structure to Gob
+	if err := encoder.Encode(packet); err != nil {
+		panic(err)
+	}
+
+	// Encrypt the Gob-encoded message
+	encryptedData, err := encrypt([]byte(m.Key), buf.Bytes())
+	if err != nil {
+		panic(err)
+	}
+
+	// Calculate MAC
+	mac := generateMAC([]byte(m.Key), encryptedData)
 
 	// Append MAC to the encrypted message
 	encryptedDataWithMAC := append(mac, encryptedData...)
@@ -122,8 +196,8 @@ func (m *Manager) Send(in_sAddress string) {
 
 func InitializeProtocol() {
 
-	gob.Register(Message1{})
-	gob.Register(Message2{})
+	gob.Register(Communication_Message_ACK{})
+	gob.Register(Communication_Message_Ping{})
 
 }
 
@@ -179,11 +253,61 @@ func verifyMAC(key, mac, data []byte) bool {
 	return hmac.Equal(mac, expectedMAC)
 }
 
-type Message1 struct {
-	Text string
+type Communication_Packet struct {
+	Counter  uint
+	SenderID string
+	Message  interface{}
 }
 
-type Message2 struct {
-	Text   string
-	Number int
+type Communication_Message_Ping struct {
+	SenderID string
+}
+
+type Communication_Message_ACK struct {
+	ACKId uint
+}
+
+type Communication_Message_NACK struct {
+	NACKId uint
+}
+
+type Communication_Message_ControlMode_Set struct {
+	ControlMode uint
+}
+
+type Communication_Message_ControlMode_Report struct {
+	ControlMode uint
+}
+
+type Communication_Message_TargetTracking_Set struct {
+	CenterX float64
+	CenterY float64
+}
+
+type Communication_Message_TargetTracking_Get struct {
+	XMin float64
+	XMax float64
+	YMin float64
+	YMax float64
+}
+
+type Communication_Message_TargetTrackingStatus struct {
+	Status bool
+}
+
+type Communication_Message_GuidanceState struct {
+	DistanceToNext float64
+	HeadingToNext  float64
+}
+
+type Communication_Message_BatteryVoltage struct {
+	Voltage float64
+}
+
+type Communication_Message_OnboardSystems struct {
+	Video1In       uint
+	Video2In       uint
+	TargetTracking uint
+	FCRX           uint
+	ControlLoop    uint
 }
