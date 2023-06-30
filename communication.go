@@ -81,13 +81,16 @@ func (m *Manager) Run() {
 			if decryptErr != nil {
 				panic(decryptErr)
 			}
-			// Decode the decrypted packet
-			var receivedPacket interface{}
+
 			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
-			decodeErr := dec.Decode(&receivedPacket)
+
+			// Decode the decrypted packet
+			var message interface{}
+			decodeErr := dec.Decode(&message)
 			if decodeErr != nil {
 				// Handle
-				panic(decodeErr)
+				fmt.Printf("error while decoding!")
+				continue
 			}
 			//m.Handler(receivedPacket)
 
