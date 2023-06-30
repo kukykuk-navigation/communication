@@ -93,7 +93,7 @@ func (m *Manager) Run() {
 			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
 
 			// Decode the decrypted packet
-			var message interface{}
+			var message Communication_Message_Ping
 			decodeErr := dec.Decode(&message)
 			if decodeErr != nil {
 				panic(decodeErr)
