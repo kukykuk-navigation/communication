@@ -97,14 +97,6 @@ func (m *Manager) Run() {
 				panic(decryptErr)
 			}
 
-			// PING
-			decodeError = json.Unmarshal(decryptedPacket, &messagePing)
-			if decodeError == nil {
-				m.Handler(messagePing)
-				go m.Send2Groundstation(Communication_Message_ACK{SenderID: m.SystemID, Counter: m.PacketCounter, ACKId: messagePing.Counter})
-				continue
-			}
-
 			// ACK
 			decodeError = json.Unmarshal(decryptedPacket, &messageACK)
 			if decodeError == nil {
@@ -117,6 +109,14 @@ func (m *Manager) Run() {
 			decodeError = json.Unmarshal(decryptedPacket, &messageNACK)
 			if decodeError == nil {
 				m.Handler(messageACK)
+				continue
+			}
+
+			// PING
+			decodeError = json.Unmarshal(decryptedPacket, &messagePing)
+			if decodeError == nil {
+				m.Handler(messagePing)
+				go m.Send2Groundstation(Communication_Message_ACK{SenderID: m.SystemID, Counter: m.PacketCounter, ACKId: messagePing.Counter})
 				continue
 			}
 
