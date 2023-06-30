@@ -97,6 +97,8 @@ func (m *Manager) Run() {
 				panic(decryptErr)
 			}
 
+			fmt.Printf("%v\n", decryptedPacket)
+
 			// ACK
 			decodeError = json.Unmarshal(decryptedPacket, &messageACK)
 			if decodeError == nil {
