@@ -88,9 +88,8 @@ func (m *Manager) Run() {
 			var message interface{}
 			decodeErr := dec.Decode(&message)
 			if decodeErr != nil {
-				// Handle
-				fmt.Printf("error while decoding!")
-				continue
+				panic(decodeErr)
+
 			}
 			//m.Handler(receivedPacket)
 
