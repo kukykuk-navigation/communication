@@ -24,10 +24,10 @@ type Manager struct {
 	Connection            *net.UDPConn
 	Key                   string
 	Handler               func(Message interface{})
-	groundstationAddress  string
-	onboardAddress        string
-	antennaTrackerAddress string
-	packetCounter         uint
+	GroundstationAddress  string
+	OnboardAddress        string
+	AntennaTrackerAddress string
+	PacketCounter         uint
 }
 
 func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groundstationAddress, in_antennaTrackerAddress string, in_handler CommunicationHandler) (Manager, error) {
@@ -54,7 +54,15 @@ func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groun
 		key = in_key
 	}
 
-	return Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: default_key, packetCounter: 0, onboardAddress: in_onboardAddress, groundstationAddress: in_groundstationAddress, antennaTrackerAddress: in_antennaTrackerAddress, Handler: in_handler}, nil
+	return Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, PacketCounter: 0, OnboardAddress: in_onboardAddress, GroundstationAddress: in_groundstationAddress, AntennaTrackerAddress: in_antennaTrackerAddress, Handler: in_handler}, nil
+}
+
+func (m *Manager) GetCounter() uint {
+	return m.PacketCounter
+}
+
+func (m *Manager) GetKey() string {
+	return m.Key
 }
 
 func (m *Manager) Run() {
@@ -106,7 +114,7 @@ func (m *Manager) Send2Onboard(in_message interface{}) {
 
 	// Connect to the server
 
-	conn, err := net.Dial("udp", m.onboardAddress)
+	conn, err := net.Dial("udp", m.OnboardAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -141,7 +149,7 @@ func (m *Manager) Ping2Groundstation() {
 
 	// Connect to the server
 
-	conn, err := net.Dial("udp", m.groundstationAddress)
+	conn, err := net.Dial("udp", m.GroundstationAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -150,7 +158,7 @@ func (m *Manager) Ping2Groundstation() {
 	// Serialize the message structure to Gob
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
-	if err := enc.Encode(Communication_Message_Ping{SenderID: m.SystemID, Counter: m.packetCounter}); err != nil {
+	if err := enc.Encode(Communication_Message_Ping{SenderID: m.SystemID, Counter: m.PacketCounter}); err != nil {
 		panic(err)
 	}
 
@@ -176,7 +184,7 @@ func (m *Manager) Send2AntennaTracker(in_message interface{}) {
 
 	// Connect to the server
 
-	conn, err := net.Dial("udp", m.antennaTrackerAddress)
+	conn, err := net.Dial("udp", m.AntennaTrackerAddress)
 	if err != nil {
 		panic(err)
 	}
