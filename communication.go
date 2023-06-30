@@ -83,7 +83,6 @@ func (m *Manager) Run() {
 			}
 			// Decode the decrypted packet
 			var receivedPacket interface{}
-			receivedPacket = decryptedPacket
 			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
 			decodeErr := dec.Decode(&receivedPacket)
 			if decodeErr != nil {
