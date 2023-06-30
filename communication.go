@@ -28,7 +28,7 @@ type Manager struct {
 	packetCounter         uint
 }
 
-func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_antennaTrackerAddress string) (Manager, error) {
+func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groundstationAddress, in_antennaTrackerAddress string) (Manager, error) {
 
 	var addr *net.UDPAddr
 	var conn *net.UDPConn
@@ -52,7 +52,7 @@ func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_anten
 		key = in_key
 	}
 
-	return Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, packetCounter: 0, onboardAddress: in_onboardAddress, antennaTrackerAddress: in_antennaTrackerAddress}, nil
+	return Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, packetCounter: 0, onboardAddress: in_onboardAddress, groundstationAddress: in_groundstationAddress, antennaTrackerAddress: in_antennaTrackerAddress}, nil
 }
 
 func (m *Manager) Run() {
