@@ -103,8 +103,10 @@ func (m *Manager) Run() {
 			if decodeError == nil {
 
 				fmt.Printf("received: %v %v %v %v\n", packet.Counter, packet.Type, packet.SubType, packet.Message)
-
 				continue
+
+			} else {
+				panic(decodeError)
 			}
 
 		}
