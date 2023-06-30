@@ -149,45 +149,48 @@ func (m *Manager) Send2Onboard(in_message interface{}) {
 
 }
 
-func (m *Manager) Send2Groundstation(in_message Message) {
+func (m *Manager) Send2Groundstation(in_message interface{}) {
 
-	// Connect to the server
-	conn, err := net.Dial("udp", m.GroundstationAddress)
-	if err != nil {
-		panic(err)
+	if msg, ok := in_message.(Message); ok {
+
+		// Connect to the server
+		conn, err := net.Dial("udp", m.GroundstationAddress)
+		if err != nil {
+			panic(err)
+		}
+		defer conn.Close()
+
+		// encode message
+		encodedMessage, err := json.Marshal(in_message)
+		if err != nil {
+			panic(err)
+		}
+
+		// encode packet
+		var packet = Communication_Packet{Counter: m.GetCounter(), Type: msg.getType(), SubType: msg.getSubType(), Message: string(encodedMessage)}
+		encodedPacket, err := json.Marshal(packet)
+		if err != nil {
+			panic(err)
+		}
+
+		// Encrypt the Gob-encoded message
+		encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
+		if err != nil {
+			panic(err)
+		}
+
+		// Calculate MAC
+		mac := generateMAC([]byte(m.Key), encryptedData)
+
+		// Append MAC to the encrypted message
+		encryptedDataWithMAC := append(mac, encryptedData...)
+
+		if _, err := conn.Write(encryptedDataWithMAC); err != nil {
+			panic(err)
+		}
+
+		m.PacketCounter = m.PacketCounter + 1
 	}
-	defer conn.Close()
-
-	// encode message
-	encodedMessage, err := json.Marshal(in_message)
-	if err != nil {
-		panic(err)
-	}
-
-	// encode packet
-	var packet = Communication_Packet{Counter: m.GetCounter(), Type: in_message.getType(), SubType: in_message.getSubType(), Message: string(encodedMessage)}
-	encodedPacket, err := json.Marshal(packet)
-	if err != nil {
-		panic(err)
-	}
-
-	// Encrypt the Gob-encoded message
-	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
-	if err != nil {
-		panic(err)
-	}
-
-	// Calculate MAC
-	mac := generateMAC([]byte(m.Key), encryptedData)
-
-	// Append MAC to the encrypted message
-	encryptedDataWithMAC := append(mac, encryptedData...)
-
-	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
-		panic(err)
-	}
-
-	m.PacketCounter = m.PacketCounter + 1
 
 }
 
