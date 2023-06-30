@@ -83,7 +83,7 @@ func (m *Manager) Run() {
 			}
 
 			// Decode the decrypted packet
-			var receivedPacket Communication_Packet
+			var receivedPacket interface{}
 			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
 			decodeErr := dec.Decode(&receivedPacket)
 			if decodeErr != nil {
@@ -98,7 +98,7 @@ func (m *Manager) Run() {
 			if err != nil {
 				panic(err)
 			}
-			m.Handler(receivedPacket.Message)
+			m.Handler(receivedPacket)
 
 			fmt.Printf("Received message from %s:\n", addr)
 
@@ -231,7 +231,6 @@ func DefaultHandler(in_message interface{}) {
 
 func InitializeProtocol() {
 
-	gob.Register(Communication_Packet{})
 	gob.Register(Communication_Message_ACK{})
 	gob.Register(Communication_Message_Ping{})
 
@@ -289,58 +288,74 @@ func verifyMAC(key, mac, data []byte) bool {
 	return hmac.Equal(mac, expectedMAC)
 }
 
-type Communication_Packet struct {
-	Counter  uint
-	SenderID string
-	Message  interface{}
-}
-
 type Communication_Message_Ping struct {
+	Counter     uint
+	SenderID    string
 	Placeholder string
 }
 
 type Communication_Message_ACK struct {
-	ACKId uint
+	Counter  uint
+	SenderID string
+	ACKId    uint
 }
 
 type Communication_Message_NACK struct {
-	NACKId uint
+	Counter  uint
+	SenderID string
+	NACKId   uint
 }
 
 type Communication_Message_ControlMode_Set struct {
+	Counter     uint
+	SenderID    string
 	ControlMode uint
 }
 
 type Communication_Message_ControlMode_Report struct {
+	Counter     uint
+	SenderID    string
 	ControlMode uint
 }
 
 type Communication_Message_TargetTracking_Set struct {
-	CenterX float64
-	CenterY float64
+	Counter  uint
+	SenderID string
+	CenterX  float64
+	CenterY  float64
 }
 
 type Communication_Message_TargetTracking_Get struct {
-	XMin float64
-	XMax float64
-	YMin float64
-	YMax float64
+	Counter  uint
+	SenderID string
+	XMin     float64
+	XMax     float64
+	YMin     float64
+	YMax     float64
 }
 
 type Communication_Message_TargetTrackingStatus struct {
-	Status bool
+	Counter  uint
+	SenderID string
+	Status   bool
 }
 
 type Communication_Message_GuidanceState struct {
+	Counter        uint
+	SenderID       string
 	DistanceToNext float64
 	HeadingToNext  float64
 }
 
 type Communication_Message_BatteryVoltage struct {
-	Voltage float64
+	Counter  uint
+	SenderID string
+	Voltage  float64
 }
 
 type Communication_Message_OnboardSystems struct {
+	Counter        uint
+	SenderID       string
 	Video1In       uint
 	Video2In       uint
 	TargetTracking uint
