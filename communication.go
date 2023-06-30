@@ -59,7 +59,8 @@ func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groun
 }
 
 func (m *Manager) GetCounter() uint {
-	return m.PacketCounter
+	m.PacketCounter = m.PacketCounter + 1
+	return m.PacketCounter - 1
 }
 
 func (m *Manager) GetKey() string {
@@ -72,9 +73,7 @@ func (m *Manager) Run() {
 
 	buffer := make([]byte, 1024)
 
-	var messagePing Communication_Message_Ping
-	var messageACK Communication_Message_ACK
-	var messageNACK Communication_Message_NACK
+	var packet Communication_Packet
 
 	var decodeError error
 
@@ -99,26 +98,12 @@ func (m *Manager) Run() {
 
 			fmt.Printf("%s\n", decryptedPacket)
 
-			// ACK
-			decodeError = json.Unmarshal(decryptedPacket, &messageACK)
+			// Decode
+			decodeError = json.Unmarshal(decryptedPacket, &packet)
 			if decodeError == nil {
-				m.Handler(messageACK)
-				continue
-			}
 
-			// NACK
+				fmt.Printf("received: %v %v %v %v\n", packet.Counter, packet.Type, packet.SubType, packet.Message)
 
-			decodeError = json.Unmarshal(decryptedPacket, &messageNACK)
-			if decodeError == nil {
-				m.Handler(messageNACK)
-				continue
-			}
-
-			// PING
-			decodeError = json.Unmarshal(decryptedPacket, &messagePing)
-			if decodeError == nil {
-				m.Handler(messagePing)
-				go m.Send2Groundstation(Communication_Message_ACK{SenderID: m.SystemID, Counter: m.PacketCounter, ACKId: messagePing.Counter})
 				continue
 			}
 
@@ -164,24 +149,30 @@ func (m *Manager) Send2Onboard(in_message interface{}) {
 
 }
 
-func (m *Manager) Send2Groundstation(in_message interface{}) {
+func (m *Manager) Send2Groundstation(in_message Message) {
 
 	// Connect to the server
-
 	conn, err := net.Dial("udp", m.GroundstationAddress)
 	if err != nil {
 		panic(err)
 	}
 	defer conn.Close()
 
-	// encode
-	encoded, err := json.Marshal(in_message)
+	// encode message
+	encodedMessage, err := json.Marshal(in_message)
+	if err != nil {
+		panic(err)
+	}
+
+	// encode packet
+	var packet = Communication_Packet{Counter: m.GetCounter(), Type: in_message.getType(), SubType: in_message.getSubType(), Message: string(encodedMessage)}
+	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
 	}
 
 	// Encrypt the Gob-encoded message
-	encryptedData, err := encrypt([]byte(m.Key), encoded)
+	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
 	if err != nil {
 		panic(err)
 	}
@@ -315,10 +306,33 @@ func verifyMAC(key, mac, data []byte) bool {
 	return hmac.Equal(mac, expectedMAC)
 }
 
+type Communication_Packet struct {
+	Counter uint
+	Type    uint
+	SubType uint
+	Message string
+}
+
+type Message interface {
+	getType() uint
+	getSubType() uint
+}
+
+// Message - Ping
+
 type Communication_Message_Ping struct {
 	Counter  uint
 	SenderID string
 }
+
+func (m *Communication_Message_Ping) getType() uint {
+	return 1
+}
+func (m *Communication_Message_Ping) getSubType() uint {
+	return 1
+}
+
+// Message - ACK
 
 type Communication_Message_ACK struct {
 	Counter  uint
@@ -326,10 +340,26 @@ type Communication_Message_ACK struct {
 	ACKId    uint
 }
 
+func (m *Communication_Message_ACK) getType() uint {
+	return 2
+}
+func (m *Communication_Message_ACK) getSubType() uint {
+	return 1
+}
+
+// Message - NACK
+
 type Communication_Message_NACK struct {
 	Counter  uint
 	SenderID string
 	NACKId   uint
+}
+
+func (m *Communication_Message_NACK) getType() uint {
+	return 2
+}
+func (m *Communication_Message_NACK) getSubType() uint {
+	return 2
 }
 
 type Communication_Message_ControlMode_Set struct {
