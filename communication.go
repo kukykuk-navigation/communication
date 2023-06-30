@@ -104,6 +104,7 @@ func (m *Manager) Run() {
 			decodeError = dec.Decode(&messagePing)
 			if decodeError == nil {
 				m.Handler(messagePing)
+				go m.Send2Groundstation(Communication_Message_ACK{SenderID: m.SystemID, Counter: m.PacketCounter, ACKId: messagePing.Counter})
 				continue
 			}
 
@@ -161,6 +162,8 @@ func (m *Manager) Send2Onboard(in_message interface{}) {
 		panic(err)
 	}
 
+	m.PacketCounter = m.PacketCounter + 1
+
 }
 
 func (m *Manager) Send2Groundstation(in_message interface{}) {
@@ -196,6 +199,8 @@ func (m *Manager) Send2Groundstation(in_message interface{}) {
 		panic(err)
 	}
 
+	m.PacketCounter = m.PacketCounter + 1
+
 }
 
 func (m *Manager) Send2AntennaTracker(in_message interface{}) {
@@ -230,6 +235,8 @@ func (m *Manager) Send2AntennaTracker(in_message interface{}) {
 	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
 		panic(err)
 	}
+
+	m.PacketCounter = m.PacketCounter + 1
 
 }
 
