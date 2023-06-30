@@ -192,6 +192,8 @@ func (m *Manager) Send2Groundstation(in_message interface{}) {
 		}
 
 		m.PacketCounter = m.PacketCounter + 1
+	} else {
+		panic(ok)
 	}
 
 }
