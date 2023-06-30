@@ -137,7 +137,7 @@ func (m *Manager) Send2Onboard(in_message interface{}) {
 
 }
 
-func (m *Manager) Send2Groundstation(in_message interface{}) {
+func (m *Manager) Ping2Groundstation() {
 
 	// Connect to the server
 
@@ -150,7 +150,7 @@ func (m *Manager) Send2Groundstation(in_message interface{}) {
 	// Serialize the message structure to Gob
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
-	if err := enc.Encode(in_message); err != nil {
+	if err := enc.Encode(Communication_Message_Ping{SenderID: m.SystemID, Counter: m.packetCounter}); err != nil {
 		panic(err)
 	}
 
