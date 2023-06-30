@@ -78,7 +78,7 @@ func (m *Manager) Run() {
 	var decodeError error
 
 	for {
-		n, addr, err := m.Connection.ReadFromUDP(buffer)
+		n, _, err := m.Connection.ReadFromUDP(buffer)
 		if err != nil {
 			panic(err)
 		}
@@ -95,8 +95,6 @@ func (m *Manager) Run() {
 			if decryptErr != nil {
 				panic(decryptErr)
 			}
-
-			fmt.Printf("Received message from %s:\n", addr)
 
 			// Deserialize the Gob-encoded data into the original structure
 			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
@@ -125,8 +123,6 @@ func (m *Manager) Run() {
 				continue
 			}
 
-		} else {
-			fmt.Printf("Received message from %s: MAC verification failed.\n", addr)
 		}
 	}
 
@@ -181,41 +177,6 @@ func (m *Manager) Send2Groundstation(in_message interface{}) {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	if err := enc.Encode(in_message); err != nil {
-		panic(err)
-	}
-
-	// Encrypt the Gob-encoded message
-	encryptedData, err := encrypt([]byte(m.Key), buf.Bytes())
-	if err != nil {
-		panic(err)
-	}
-
-	// Calculate MAC
-	mac := generateMAC([]byte(m.Key), encryptedData)
-
-	// Append MAC to the encrypted message
-	encryptedDataWithMAC := append(mac, encryptedData...)
-
-	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
-		panic(err)
-	}
-
-}
-
-func (m *Manager) Ping2Groundstation() {
-
-	// Connect to the server
-
-	conn, err := net.Dial("udp", m.GroundstationAddress)
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close()
-
-	// Serialize the message structure to Gob
-	var buf bytes.Buffer
-	enc := gob.NewEncoder(&buf)
-	if err := enc.Encode(Communication_Message_Ping{SenderID: m.SystemID, Counter: m.PacketCounter}); err != nil {
 		panic(err)
 	}
 
