@@ -91,7 +91,7 @@ func (m *Manager) Run() {
 			}
 
 			// Deserialize the Gob-encoded data into the original structure
-			var receivedMsg interface{}
+			var receivedMsg Communication_Message_Ping
 			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
 			if err := dec.Decode(&receivedMsg); err != nil {
 				panic(err)
