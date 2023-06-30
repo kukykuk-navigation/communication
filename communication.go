@@ -77,20 +77,21 @@ func (m *Manager) Run() {
 		if verifyMAC([]byte(m.Key), receivedMAC, receivedEncryptedPacket) {
 
 			// Decrypt the received data
-			decryptedPacket, decryptErr := decrypt([]byte(m.Key), receivedEncryptedPacket)
+			_, decryptErr := decrypt([]byte(m.Key), receivedEncryptedPacket)
 			if decryptErr != nil {
 				panic(decryptErr)
 			}
-
-			// Decode the decrypted packet
-			var receivedPacket interface{}
-			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
-			decodeErr := dec.Decode(&receivedPacket)
-			if decodeErr != nil {
-				// Handle
-				panic(decodeErr)
-			}
-			m.Handler(receivedPacket)
+			/*
+				// Decode the decrypted packet
+				var receivedPacket interface{}
+				dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
+				decodeErr := dec.Decode(&receivedPacket)
+				if decodeErr != nil {
+					// Handle
+					panic(decodeErr)
+				}
+				m.Handler(receivedPacket)
+			*/
 
 			fmt.Printf("Received message from %s:\n", addr)
 
