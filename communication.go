@@ -90,15 +90,13 @@ func (m *Manager) Run() {
 				panic(decryptErr)
 			}
 
+			// Deserialize the Gob-encoded data into the original structure
+			var receivedMsg interface{}
 			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
-
-			// Decode the decrypted packet
-			var message interface{}
-			decodeErr := dec.Decode(&message)
-			if decodeErr != nil {
-				panic(decodeErr)
-
+			if err := dec.Decode(&receivedMsg); err != nil {
+				panic(err)
 			}
+
 			//m.Handler(receivedPacket)
 
 			fmt.Printf("Received message from %s:\n", addr)
