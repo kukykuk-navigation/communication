@@ -71,6 +71,12 @@ func (m *Manager) Run() {
 
 	buffer := make([]byte, 1024)
 
+	var messagePing Communication_Message_Ping
+	var messageACK Communication_Message_ACK
+	var messageNACK Communication_Message_NACK
+
+	var decodeError error
+
 	for {
 		n, addr, err := m.Connection.ReadFromUDP(buffer)
 		if err != nil {
@@ -90,16 +96,34 @@ func (m *Manager) Run() {
 				panic(decryptErr)
 			}
 
+			fmt.Printf("Received message from %s:\n", addr)
+
 			// Deserialize the Gob-encoded data into the original structure
-			var receivedMsg interface{}
 			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
-			if err := dec.Decode(&receivedMsg); err != nil {
-				panic(err)
+
+			// PING
+
+			decodeError = dec.Decode(&messagePing)
+			if decodeError == nil {
+				m.Handler(messagePing)
+				continue
 			}
 
-			m.Handler(receivedMsg)
+			// ACK
 
-			fmt.Printf("Received message from %s:\n", addr)
+			decodeError = dec.Decode(&messageACK)
+			if decodeError == nil {
+				m.Handler(messageACK)
+				continue
+			}
+
+			// NACK
+
+			decodeError = dec.Decode(&messageNACK)
+			if decodeError == nil {
+				m.Handler(messageACK)
+				continue
+			}
 
 		} else {
 			fmt.Printf("Received message from %s: MAC verification failed.\n", addr)
