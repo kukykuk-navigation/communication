@@ -17,14 +17,18 @@ const (
 )
 
 type Manager struct {
-	SystemID      string
-	Address       *net.UDPAddr
-	Connection    *net.UDPConn
-	Key           string
-	packetCounter uint
+	SystemID              string
+	Address               *net.UDPAddr
+	Connection            *net.UDPConn
+	Key                   string
+	Handler               func(Message interface{})
+	groundstationAddress  string
+	onboardAddress        string
+	antennaTrackerAddress string
+	packetCounter         uint
 }
 
-func InitializeManager(in_systemid, in_port, in_key string) (Manager, error) {
+func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_antennaTrackerAddress string) (Manager, error) {
 
 	var addr *net.UDPAddr
 	var conn *net.UDPConn
@@ -48,7 +52,7 @@ func InitializeManager(in_systemid, in_port, in_key string) (Manager, error) {
 		key = in_key
 	}
 
-	return Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, packetCounter: 0}, nil
+	return Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, packetCounter: 0, onboardAddress: in_onboardAddress, antennaTrackerAddress: in_antennaTrackerAddress}, nil
 }
 
 func (m *Manager) Run() {
@@ -85,25 +89,14 @@ func (m *Manager) Run() {
 				panic(decodeErr)
 			}
 
-			// Decoding based on the type of message
-			switch m := receivedPacket.Message.(type) {
-			case Communication_Message_Ping:
-				// Handle decoding for message type 1
-				err := dec.Decode(&m)
-				fmt.Printf("Received message: %+v\n", m)
-				// Handle error
-				if err != nil {
-					panic(err)
-				}
-			case Communication_Message_ACK:
-				// Handle decoding for message type 2
-				err := dec.Decode(&m)
-				fmt.Printf("Received message: %+v\n", m)
-				// Handle error
-				if err != nil {
-					panic(err)
-				}
+			var mes interface{}
+			err := dec.Decode(&mes)
+			fmt.Printf("Received message: %+v\n", mes)
+			// Handle error
+			if err != nil {
+				panic(err)
 			}
+			m.Handler(receivedPacket.Message)
 
 			fmt.Printf("Received message from %s:\n", addr)
 
@@ -114,24 +107,20 @@ func (m *Manager) Run() {
 
 }
 
-func (m *Manager) Send(in_sAddress string) {
+func (m *Manager) Send2Onboard(in_message interface{}) {
 
 	// Connect to the server
-	conn, err := net.Dial("udp", in_sAddress)
+
+	conn, err := net.Dial("udp", m.onboardAddress)
 	if err != nil {
 		panic(err)
 	}
 	defer conn.Close()
 
-	// Create a message structure
-	msg := Communication_Message_Ping{
-		SenderID: "TEST",
-	}
-
 	// Serialize the message structure to Gob
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
-	if err := enc.Encode(msg); err != nil {
+	if err := enc.Encode(in_message); err != nil {
 		panic(err)
 	}
 
@@ -153,26 +142,20 @@ func (m *Manager) Send(in_sAddress string) {
 
 }
 
-func (m *Manager) Send_Ping(in_sAddress string) {
+func (m *Manager) Send2Groundstation(in_message interface{}) {
 
 	// Connect to the server
-	conn, err := net.Dial("udp", in_sAddress)
+
+	conn, err := net.Dial("udp", m.groundstationAddress)
 	if err != nil {
 		panic(err)
 	}
 	defer conn.Close()
 
-	var buf bytes.Buffer
-	encoder := gob.NewEncoder(&buf)
-
-	packet := Communication_Packet{
-		Counter:  m.packetCounter,
-		SenderID: m.SystemID,
-		Message:  Communication_Message_Ping{},
-	}
-
 	// Serialize the message structure to Gob
-	if err := encoder.Encode(packet); err != nil {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	if err := enc.Encode(in_message); err != nil {
 		panic(err)
 	}
 
@@ -192,6 +175,56 @@ func (m *Manager) Send_Ping(in_sAddress string) {
 		panic(err)
 	}
 
+}
+
+func (m *Manager) Send2AntennaTracker(in_message interface{}) {
+
+	// Connect to the server
+
+	conn, err := net.Dial("udp", m.antennaTrackerAddress)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	// Serialize the message structure to Gob
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	if err := enc.Encode(in_message); err != nil {
+		panic(err)
+	}
+
+	// Encrypt the Gob-encoded message
+	encryptedData, err := encrypt([]byte(m.Key), buf.Bytes())
+	if err != nil {
+		panic(err)
+	}
+
+	// Calculate MAC
+	mac := generateMAC([]byte(m.Key), encryptedData)
+
+	// Append MAC to the encrypted message
+	encryptedDataWithMAC := append(mac, encryptedData...)
+
+	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
+		panic(err)
+	}
+
+}
+
+func DefaultHandler(in_message interface{}) {
+
+	// Decoding based on the type of message
+	switch message := in_message.(type) {
+	case Communication_Message_Ping:
+		// Handle decoding for message type 1
+		fmt.Printf("Received message: %+v\n", message)
+
+	case Communication_Message_ACK:
+		// Handle decoding for message type 2
+		fmt.Printf("Received message: %+v\n", message)
+
+	}
 }
 
 func InitializeProtocol() {
@@ -260,7 +293,7 @@ type Communication_Packet struct {
 }
 
 type Communication_Message_Ping struct {
-	SenderID string
+	Placeholder string
 }
 
 type Communication_Message_ACK struct {
