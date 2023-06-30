@@ -54,7 +54,7 @@ func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groun
 		key = in_key
 	}
 
-	return Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, packetCounter: 0, onboardAddress: in_onboardAddress, groundstationAddress: in_groundstationAddress, antennaTrackerAddress: in_antennaTrackerAddress, Handler: in_handler}, nil
+	return Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: default_key, packetCounter: 0, onboardAddress: in_onboardAddress, groundstationAddress: in_groundstationAddress, antennaTrackerAddress: in_antennaTrackerAddress, Handler: in_handler}, nil
 }
 
 func (m *Manager) Run() {
