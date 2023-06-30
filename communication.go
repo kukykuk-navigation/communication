@@ -77,21 +77,20 @@ func (m *Manager) Run() {
 		if verifyMAC([]byte(m.Key), receivedMAC, receivedEncryptedPacket) {
 
 			// Decrypt the received data
-			_, decryptErr := decrypt([]byte(m.Key), receivedEncryptedPacket)
+			decryptedPacket, decryptErr := decrypt([]byte(m.Key), receivedEncryptedPacket)
 			if decryptErr != nil {
 				panic(decryptErr)
 			}
-			/*
-				// Decode the decrypted packet
-				var receivedPacket interface{}
-				dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
-				decodeErr := dec.Decode(&receivedPacket)
-				if decodeErr != nil {
-					// Handle
-					panic(decodeErr)
-				}
-				m.Handler(receivedPacket)
-			*/
+			// Decode the decrypted packet
+			var receivedPacket interface{}
+			receivedPacket = decryptedPacket
+			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
+			decodeErr := dec.Decode(&receivedPacket)
+			if decodeErr != nil {
+				// Handle
+				panic(decodeErr)
+			}
+			//m.Handler(receivedPacket)
 
 			fmt.Printf("Received message from %s:\n", addr)
 
@@ -282,9 +281,8 @@ func verifyMAC(key, mac, data []byte) bool {
 }
 
 type Communication_Message_Ping struct {
-	Counter     uint
-	SenderID    string
-	Placeholder string
+	Counter  uint
+	SenderID string
 }
 
 type Communication_Message_ACK struct {
