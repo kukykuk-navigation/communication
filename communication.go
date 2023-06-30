@@ -90,14 +90,6 @@ func (m *Manager) Run() {
 				// Handle
 				panic(decodeErr)
 			}
-
-			var mes interface{}
-			err := dec.Decode(&mes)
-			fmt.Printf("Received message: %+v\n", mes)
-			// Handle error
-			if err != nil {
-				panic(err)
-			}
 			m.Handler(receivedPacket)
 
 			fmt.Printf("Received message from %s:\n", addr)
