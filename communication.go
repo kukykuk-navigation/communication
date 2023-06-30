@@ -231,6 +231,7 @@ func DefaultHandler(in_message interface{}) {
 
 func InitializeProtocol() {
 
+	gob.Register(Communication_Packet{})
 	gob.Register(Communication_Message_ACK{})
 	gob.Register(Communication_Message_Ping{})
 
