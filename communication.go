@@ -30,7 +30,7 @@ type Manager struct {
 	PacketCounter         uint
 }
 
-func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groundstationAddress, in_antennaTrackerAddress string, in_handler CommunicationHandler) (Manager, error) {
+func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groundstationAddress, in_antennaTrackerAddress string, in_handler CommunicationHandler) (*Manager, error) {
 
 	var addr *net.UDPAddr
 	var conn *net.UDPConn
@@ -38,12 +38,12 @@ func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groun
 
 	addr, addrError = net.ResolveUDPAddr("udp", ":"+in_port)
 	if addrError != nil {
-		return Manager{}, addrError
+		return &Manager{}, addrError
 	}
 
 	conn, connError = net.ListenUDP("udp", addr)
 	if connError != nil {
-		return Manager{}, connError
+		return &Manager{}, connError
 	}
 
 	var key string
@@ -54,7 +54,7 @@ func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groun
 		key = in_key
 	}
 
-	return Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, PacketCounter: 0, OnboardAddress: in_onboardAddress, GroundstationAddress: in_groundstationAddress, AntennaTrackerAddress: in_antennaTrackerAddress, Handler: in_handler}, nil
+	return &Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, PacketCounter: 0, OnboardAddress: in_onboardAddress, GroundstationAddress: in_groundstationAddress, AntennaTrackerAddress: in_antennaTrackerAddress, Handler: in_handler}, nil
 }
 
 func (m *Manager) GetCounter() uint {
@@ -93,7 +93,7 @@ func (m *Manager) Run() {
 			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
 
 			// Decode the decrypted packet
-			var message Communication_Message_Ping
+			var message interface{}
 			decodeErr := dec.Decode(&message)
 			if decodeErr != nil {
 				panic(decodeErr)
