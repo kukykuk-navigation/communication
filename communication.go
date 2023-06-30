@@ -143,6 +143,41 @@ func (m *Manager) Send2Onboard(in_message interface{}) {
 
 }
 
+func (m *Manager) Send2Groundstation(in_message interface{}) {
+
+	// Connect to the server
+
+	conn, err := net.Dial("udp", m.GroundstationAddress)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	// Serialize the message structure to Gob
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	if err := enc.Encode(in_message); err != nil {
+		panic(err)
+	}
+
+	// Encrypt the Gob-encoded message
+	encryptedData, err := encrypt([]byte(m.Key), buf.Bytes())
+	if err != nil {
+		panic(err)
+	}
+
+	// Calculate MAC
+	mac := generateMAC([]byte(m.Key), encryptedData)
+
+	// Append MAC to the encrypted message
+	encryptedDataWithMAC := append(mac, encryptedData...)
+
+	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
+		panic(err)
+	}
+
+}
+
 func (m *Manager) Ping2Groundstation() {
 
 	// Connect to the server
