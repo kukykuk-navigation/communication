@@ -244,13 +244,14 @@ func DefaultHandler(in_message interface{}) {
 
 	// Decoding based on the type of message
 	switch message := in_message.(type) {
+
 	case Communication_Message_Ping:
 		// Handle decoding for message type 1
-		fmt.Printf("Received message: %+v\n", message)
+		fmt.Printf("Received PING: %+v\n", message)
 
 	case Communication_Message_ACK:
 		// Handle decoding for message type 2
-		fmt.Printf("Received message: %+v\n", message)
+		fmt.Printf("Received ACK: %+v\n", message)
 
 	}
 }
