@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/gob"
+	"encoding/json"
 	"fmt"
 	"net"
 )
@@ -96,12 +97,8 @@ func (m *Manager) Run() {
 				panic(decryptErr)
 			}
 
-			// Deserialize the Gob-encoded data into the original structure
-			dec := gob.NewDecoder(bytes.NewReader(decryptedPacket))
-
 			// PING
-
-			decodeError = dec.Decode(&messagePing)
+			decodeError = json.Unmarshal(decryptedPacket, &messagePing)
 			if decodeError == nil {
 				m.Handler(messagePing)
 				go m.Send2Groundstation(Communication_Message_ACK{SenderID: m.SystemID, Counter: m.PacketCounter, ACKId: messagePing.Counter})
@@ -109,8 +106,7 @@ func (m *Manager) Run() {
 			}
 
 			// ACK
-
-			decodeError = dec.Decode(&messageACK)
+			decodeError = json.Unmarshal(decryptedPacket, &messageACK)
 			if decodeError == nil {
 				m.Handler(messageACK)
 				continue
@@ -118,7 +114,7 @@ func (m *Manager) Run() {
 
 			// NACK
 
-			decodeError = dec.Decode(&messageNACK)
+			decodeError = json.Unmarshal(decryptedPacket, &messageNACK)
 			if decodeError == nil {
 				m.Handler(messageACK)
 				continue
@@ -176,15 +172,14 @@ func (m *Manager) Send2Groundstation(in_message interface{}) {
 	}
 	defer conn.Close()
 
-	// Serialize the message structure to Gob
-	var buf bytes.Buffer
-	enc := gob.NewEncoder(&buf)
-	if err := enc.Encode(in_message); err != nil {
+	// encode
+	encoded, err := json.Marshal(in_message)
+	if err != nil {
 		panic(err)
 	}
 
 	// Encrypt the Gob-encoded message
-	encryptedData, err := encrypt([]byte(m.Key), buf.Bytes())
+	encryptedData, err := encrypt([]byte(m.Key), encoded)
 	if err != nil {
 		panic(err)
 	}
