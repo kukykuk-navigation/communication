@@ -97,7 +97,7 @@ func (m *Manager) Run() {
 				panic(err)
 			}
 
-			//m.Handler(receivedPacket)
+			m.Handler(receivedMsg)
 
 			fmt.Printf("Received message from %s:\n", addr)
 
