@@ -309,5 +309,6 @@ type Communication_Message_OnboardSystems struct {
 	Video2In       uint
 	TargetTracking uint
 	FCRX           uint
+	FCTX           uint
 	ControlLoop    uint
 }
