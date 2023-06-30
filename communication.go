@@ -108,7 +108,7 @@ func (m *Manager) Run() {
 
 			decodeError = json.Unmarshal(decryptedPacket, &messageNACK)
 			if decodeError == nil {
-				m.Handler(messageACK)
+				m.Handler(messageNACK)
 				continue
 			}
 
