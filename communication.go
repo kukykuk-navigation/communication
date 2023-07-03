@@ -78,6 +78,7 @@ func (m *Manager) Run() {
 	var decodeError error
 
 	for {
+
 		n, _, err := m.Connection.ReadFromUDP(buffer)
 		if err != nil {
 			panic(err)
@@ -102,10 +103,7 @@ func (m *Manager) Run() {
 			decodeError = json.Unmarshal(decryptedPacket, &packet)
 			if decodeError == nil {
 
-				fmt.Printf("received: %+v\n", packet)
-				if packet.Type != 2 {
-					go m.Send2Groundstation(&Communication_Message_ACK{ACKId: m.PacketCounter})
-				}
+				DefaultHandler(packet)
 
 			} else {
 				panic(decodeError)
@@ -226,20 +224,10 @@ func (m *Manager) Send2AntennaTracker(in_message interface{}) {
 
 }
 
-func DefaultHandler(in_message interface{}) {
+func DefaultHandler(in_packet Communication_Packet) {
 
-	// Decoding based on the type of message
-	switch message := in_message.(type) {
+	fmt.Printf("%+v\n", in_packet)
 
-	case Communication_Message_Ping:
-		// Handle decoding for message type 1
-		fmt.Printf("Received PING: %+v\n", message)
-
-	case Communication_Message_ACK:
-		// Handle decoding for message type 2
-		fmt.Printf("Received ACK: %+v\n", message)
-
-	}
 }
 
 func InitializeProtocol() {
