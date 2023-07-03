@@ -7,7 +7,6 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/json"
-	"fmt"
 	"net"
 	"sync"
 )
@@ -356,7 +355,7 @@ func (m *Manager) MinimalHandler(in_packet Communication_Packet) {
 
 func DefaultHandler(in_packet Communication_Packet) {
 
-	fmt.Printf("%+v\n", in_packet)
+	//fmt.Printf("%+v\n", in_packet)
 
 }
 
