@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"sync"
 )
 
 const (
@@ -27,7 +28,8 @@ type Manager struct {
 	GroundstationAddress  string
 	OnboardAddress        string
 	AntennaTrackerAddress string
-	PacketCounter         uint
+	packetCounter         uint
+	packetCounterMutex    sync.Mutex
 }
 
 func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groundstationAddress, in_antennaTrackerAddress string, in_handler CommunicationHandler) (*Manager, error) {
@@ -54,12 +56,20 @@ func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groun
 		key = in_key
 	}
 
-	return &Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, PacketCounter: 0, OnboardAddress: in_onboardAddress, GroundstationAddress: in_groundstationAddress, AntennaTrackerAddress: in_antennaTrackerAddress, Handler: in_handler}, nil
+	return &Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, packetCounter: 0, OnboardAddress: in_onboardAddress, GroundstationAddress: in_groundstationAddress, AntennaTrackerAddress: in_antennaTrackerAddress, Handler: in_handler}, nil
 }
 
 func (m *Manager) GetCounter() uint {
-	m.PacketCounter = m.PacketCounter + 1
-	return m.PacketCounter - 1
+	return m.packetCounter
+}
+
+func (m *Manager) IncrementCounter() uint {
+	m.packetCounterMutex.Lock()
+	defer m.packetCounterMutex.Unlock()
+
+	m.packetCounter = m.packetCounter + 1
+	return m.packetCounter - 1
+
 }
 
 func (m *Manager) GetKey() string {
@@ -125,7 +135,7 @@ func (m *Manager) Send2Any(in_message Message, in_address string) {
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{Counter: m.GetCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
@@ -146,8 +156,6 @@ func (m *Manager) Send2Any(in_message Message, in_address string) {
 	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
 		panic(err)
 	}
-
-	m.PacketCounter = m.PacketCounter + 1
 
 }
 
@@ -161,7 +169,7 @@ func (m *Manager) Send2Onboard(in_message Message) {
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{Counter: m.GetCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
@@ -182,8 +190,6 @@ func (m *Manager) Send2Onboard(in_message Message) {
 	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
 		panic(err)
 	}
-
-	m.PacketCounter = m.PacketCounter + 1
 
 }
 
@@ -197,7 +203,7 @@ func (m *Manager) Send2Groundstation(in_message Message) {
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{Counter: m.GetCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
@@ -218,8 +224,6 @@ func (m *Manager) Send2Groundstation(in_message Message) {
 	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
 		panic(err)
 	}
-
-	m.PacketCounter = m.PacketCounter + 1
 
 }
 
@@ -233,7 +237,7 @@ func (m *Manager) Send2AntennaTracker(in_message Message) {
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{Counter: m.GetCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
@@ -254,8 +258,6 @@ func (m *Manager) Send2AntennaTracker(in_message Message) {
 	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
 		panic(err)
 	}
-
-	m.PacketCounter = m.PacketCounter + 1
 
 }
 
