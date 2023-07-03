@@ -88,7 +88,7 @@ func (m *Manager) Run() {
 
 	for {
 
-		n, addr, err := m.Connection.ReadFromUDP(buffer)
+		n, _, err := m.Connection.ReadFromUDP(buffer)
 		if err != nil {
 			panic(err)
 		}
