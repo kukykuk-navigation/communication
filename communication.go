@@ -17,7 +17,7 @@ const (
 	default_key = "0123456789abcdef"
 )
 
-type CommunicationHandler func(interface{})
+type CommunicationHandler func(Communication_Packet)
 
 type Manager struct {
 	SystemID              string
