@@ -108,17 +108,11 @@ func (m *Manager) Run() {
 
 			// Decode
 			decodeError = json.Unmarshal(decryptedPacket, &packet)
-			if decodeError == nil {
-
-				if packet.Type != 2 {
-					go m.Send2Groundstation(&Communication_Message_ACK{ACKId: packet.Counter})
-				}
-
-				DefaultHandler(packet)
-
-			} else {
+			if decodeError != nil {
 				panic(decodeError)
 			}
+			go m.Send2Groundstation(&Communication_Message_ACK{ACKId: packet.Counter})
+			DefaultHandler(packet)
 
 		}
 	}
