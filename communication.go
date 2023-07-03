@@ -103,7 +103,7 @@ func (m *Manager) Run() {
 			if decodeError == nil {
 
 				fmt.Printf("received: %+v\n", packet)
-				continue
+				go m.Send2Groundstation(&Communication_Message_ACK{ACKId: m.PacketCounter})
 
 			} else {
 				panic(decodeError)
