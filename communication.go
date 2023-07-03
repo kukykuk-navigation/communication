@@ -102,7 +102,7 @@ func (m *Manager) Run() {
 			decodeError = json.Unmarshal(decryptedPacket, &packet)
 			if decodeError == nil {
 
-				fmt.Printf("received: %v %v %v %v\n", packet.Counter, packet.Type, packet.SubType, packet.Message)
+				fmt.Printf("received: %+v\n", packet)
 				continue
 
 			} else {
