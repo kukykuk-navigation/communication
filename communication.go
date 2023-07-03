@@ -321,6 +321,7 @@ type Communication_Packet struct {
 type Message interface {
 	getType() uint
 	getSubType() uint
+	encode() []byte
 }
 
 // Message - Ping
@@ -335,6 +336,10 @@ func (m *Communication_Message_Ping) getType() uint {
 }
 func (m *Communication_Message_Ping) getSubType() uint {
 	return 1
+}
+func (m *Communication_Message_Ping) encode() []byte {
+	encoded, _ := json.Marshal(m)
+	return encoded
 }
 
 // Message - ACK
@@ -351,6 +356,10 @@ func (m *Communication_Message_ACK) getType() uint {
 func (m *Communication_Message_ACK) getSubType() uint {
 	return 1
 }
+func (m *Communication_Message_ACK) encode() []byte {
+	encoded, _ := json.Marshal(m)
+	return encoded
+}
 
 // Message - NACK
 
@@ -365,6 +374,10 @@ func (m *Communication_Message_NACK) getType() uint {
 }
 func (m *Communication_Message_NACK) getSubType() uint {
 	return 2
+}
+func (m *Communication_Message_NACK) encode() []byte {
+	encoded, _ := json.Marshal(m)
+	return encoded
 }
 
 type Communication_Message_ControlMode_Set struct {
