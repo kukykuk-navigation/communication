@@ -96,14 +96,12 @@ func (m *Manager) Run() {
 				panic(decryptErr)
 			}
 
-			fmt.Printf("%s\n", decryptedPacket)
-
 			// Decode
 			decodeError = json.Unmarshal(decryptedPacket, &packet)
 			if decodeError == nil {
 
 				if packet.Type != 2 {
-					m.Send2Any(&Communication_Message_ACK{ACKId: packet.Counter}, addr.String())
+					go m.Send2Any(&Communication_Message_ACK{ACKId: packet.Counter}, addr.String())
 				}
 
 				DefaultHandler(packet)
