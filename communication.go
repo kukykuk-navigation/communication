@@ -24,7 +24,7 @@ type Manager struct {
 	Address               *net.UDPAddr
 	Connection            *net.UDPConn
 	Key                   string
-	Handler               func(Message interface{})
+	Handler               func(Communication_Packet)
 	GroundstationAddress  string
 	OnboardAddress        string
 	AntennaTrackerAddress string
