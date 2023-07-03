@@ -114,6 +114,9 @@ func (m *Manager) Run() {
 
 			// if not ACK or NACK
 			if packet.Type != 2 {
+
+				fmt.Printf("sending ACK to: %s\n", addr.String())
+
 				go m.Send2Any(&Communication_Message_ACK{ACKId: packet.Counter}, addr.String())
 			}
 
