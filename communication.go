@@ -88,7 +88,7 @@ func (m *Manager) Run() {
 
 	for {
 
-		n, addr, err := m.Connection.ReadFromUDP(buffer)
+		n, _, err := m.Connection.ReadFromUDP(buffer)
 		if err != nil {
 			panic(err)
 		}
@@ -115,9 +115,16 @@ func (m *Manager) Run() {
 			// if not ACK or NACK
 			if packet.Type != 2 {
 
-				fmt.Printf("sending ACK to: %s\n", addr.String())
+				switch packet.SenderID {
+				case "GS":
+					go m.Send2Groundstation(&Communication_Message_ACK{ACKId: packet.Counter})
+				case "OB":
+					go m.Send2Onboard(&Communication_Message_ACK{ACKId: packet.Counter})
+				case "AT":
+					go m.Send2AntennaTracker(&Communication_Message_ACK{ACKId: packet.Counter})
+				default:
+				}
 
-				go m.Send2Any(&Communication_Message_ACK{ACKId: packet.Counter}, addr.String())
 			}
 
 			//handler
@@ -138,7 +145,7 @@ func (m *Manager) Send2Any(in_message Message, in_address string) {
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
@@ -172,7 +179,7 @@ func (m *Manager) Send2Onboard(in_message Message) {
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
@@ -206,7 +213,7 @@ func (m *Manager) Send2Groundstation(in_message Message) {
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
@@ -240,7 +247,7 @@ func (m *Manager) Send2AntennaTracker(in_message Message) {
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
@@ -331,10 +338,11 @@ func verifyMAC(key, mac, data []byte) bool {
 }
 
 type Communication_Packet struct {
-	Counter uint
-	Type    uint
-	SubType uint
-	Message string
+	SenderID string
+	Counter  uint
+	Type     uint
+	SubType  uint
+	Message  string
 }
 
 type Message interface {
