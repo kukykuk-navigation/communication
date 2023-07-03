@@ -20,16 +20,20 @@ const (
 type CommunicationHandler func(Communication_Packet)
 
 type Manager struct {
-	SystemID              string
-	Address               *net.UDPAddr
-	Connection            *net.UDPConn
-	Key                   string
-	Handler               func(Communication_Packet)
-	GroundstationAddress  string
-	OnboardAddress        string
-	AntennaTrackerAddress string
-	packetCounter         uint
-	packetCounterMutex    sync.Mutex
+	SystemID                   string
+	Address                    *net.UDPAddr
+	Connection                 *net.UDPConn
+	Handler                    func(Communication_Packet)
+	Key                        string
+	KeyMutex                   sync.Mutex
+	GroundstationAddress       string
+	GroundstationAddressMutex  sync.Mutex
+	OnboardAddress             string
+	OnboardAddressMutex        sync.Mutex
+	AntennaTrackerAddress      string
+	AntennaTrackerAddressMutex sync.Mutex
+	packetCounter              uint
+	packetCounterMutex         sync.Mutex
 }
 
 func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groundstationAddress, in_antennaTrackerAddress string, in_handler CommunicationHandler) (*Manager, error) {
@@ -73,7 +77,51 @@ func (m *Manager) IncrementCounter() uint {
 }
 
 func (m *Manager) GetKey() string {
+	m.KeyMutex.Lock()
+	defer m.KeyMutex.Unlock()
 	return m.Key
+}
+
+func (m *Manager) SetKey(in_key string) {
+	m.KeyMutex.Lock()
+	defer m.KeyMutex.Unlock()
+	m.Key = in_key
+}
+
+func (m *Manager) GetGroundstationAddress() string {
+	m.GroundstationAddressMutex.Lock()
+	defer m.GroundstationAddressMutex.Unlock()
+	return m.GroundstationAddress
+}
+
+func (m *Manager) SetGroundstationAddress(in_address string) {
+	m.GroundstationAddressMutex.Lock()
+	defer m.GroundstationAddressMutex.Unlock()
+	m.GroundstationAddress = in_address
+}
+
+func (m *Manager) GetOnboardAddress() string {
+	m.OnboardAddressMutex.Lock()
+	defer m.OnboardAddressMutex.Unlock()
+	return m.OnboardAddress
+}
+
+func (m *Manager) SetOnboardAddress(in_address string) {
+	m.OnboardAddressMutex.Lock()
+	defer m.OnboardAddressMutex.Unlock()
+	m.OnboardAddress = in_address
+}
+
+func (m *Manager) GetAntennaTrackerAddress() string {
+	m.AntennaTrackerAddressMutex.Lock()
+	defer m.AntennaTrackerAddressMutex.Unlock()
+	return m.AntennaTrackerAddress
+}
+
+func (m *Manager) SetAntennaTrackerAddress(in_address string) {
+	m.AntennaTrackerAddressMutex.Lock()
+	defer m.AntennaTrackerAddressMutex.Unlock()
+	m.AntennaTrackerAddress = in_address
 }
 
 func (m *Manager) Run() {
@@ -112,30 +160,16 @@ func (m *Manager) Run() {
 				panic(decodeError)
 			}
 
-			// if not ACK or NACK
-			if packet.Type != 2 {
-
-				switch packet.SenderID {
-				case "GS":
-					go m.Send2Groundstation(&Communication_Message_ACK{ACKId: packet.Counter})
-				case "OB":
-					go m.Send2Onboard(&Communication_Message_ACK{ACKId: packet.Counter})
-				case "AT":
-					go m.Send2AntennaTracker(&Communication_Message_ACK{ACKId: packet.Counter})
-				default:
-				}
-
-			}
-
-			//handler
-			m.Handler(packet)
+			// Handlers
+			go m.MinimalHandler(packet)
+			go m.Handler(packet)
 
 		}
 	}
 
 }
 
-func (m *Manager) Send2Any(in_message Message, in_address string) {
+func (m *Manager) Send2Any(in_message Communication_Message, in_address string) {
 
 	// Connect to the server
 	conn, err := net.Dial("udp", in_address)
@@ -169,10 +203,10 @@ func (m *Manager) Send2Any(in_message Message, in_address string) {
 
 }
 
-func (m *Manager) Send2Onboard(in_message Message) {
+func (m *Manager) Send2Onboard(in_message Communication_Message) {
 
 	// Connect to the server
-	conn, err := net.Dial("udp", m.OnboardAddress)
+	conn, err := net.Dial("udp", m.GetAntennaTrackerAddress())
 	if err != nil {
 		panic(err)
 	}
@@ -203,10 +237,10 @@ func (m *Manager) Send2Onboard(in_message Message) {
 
 }
 
-func (m *Manager) Send2Groundstation(in_message Message) {
+func (m *Manager) Send2Groundstation(in_message Communication_Message) {
 
 	// Connect to the server
-	conn, err := net.Dial("udp", m.GroundstationAddress)
+	conn, err := net.Dial("udp", m.GetGroundstationAddress())
 	if err != nil {
 		panic(err)
 	}
@@ -237,10 +271,10 @@ func (m *Manager) Send2Groundstation(in_message Message) {
 
 }
 
-func (m *Manager) Send2AntennaTracker(in_message Message) {
+func (m *Manager) Send2AntennaTracker(in_message Communication_Message) {
 
 	// Connect to the server
-	conn, err := net.Dial("udp", m.AntennaTrackerAddress)
+	conn, err := net.Dial("udp", m.GetAntennaTrackerAddress())
 	if err != nil {
 		panic(err)
 	}
@@ -269,6 +303,45 @@ func (m *Manager) Send2AntennaTracker(in_message Message) {
 		panic(err)
 	}
 
+}
+
+func (m *Manager) MinimalHandler(in_packet Communication_Packet) {
+
+	// if PING perform the linking
+	if in_packet.Type == 1 {
+
+		var message_ping Communication_Message_Ping
+		if err := json.Unmarshal([]byte(in_packet.Message), &message_ping); err != nil {
+			panic(err)
+		}
+
+		fmt.Printf("%+v\n", message_ping)
+
+		switch in_packet.SenderID {
+		case "GS":
+			m.SetGroundstationAddress(message_ping.SenderAddress)
+		case "OB":
+			m.SetGroundstationAddress(message_ping.SenderAddress)
+		case "AT":
+			m.SetGroundstationAddress(message_ping.SenderAddress)
+		default:
+		}
+	}
+
+	// if not ACK or NACK
+	if in_packet.Type != 2 {
+
+		switch in_packet.SenderID {
+		case "GS":
+			go m.Send2Groundstation(&Communication_Message_ACK{ACKId: in_packet.Counter})
+		case "OB":
+			go m.Send2Onboard(&Communication_Message_ACK{ACKId: in_packet.Counter})
+		case "AT":
+			go m.Send2AntennaTracker(&Communication_Message_ACK{ACKId: in_packet.Counter})
+		default:
+		}
+
+	}
 }
 
 func DefaultHandler(in_packet Communication_Packet) {
@@ -345,7 +418,7 @@ type Communication_Packet struct {
 	Message  string
 }
 
-type Message interface {
+type Communication_Message interface {
 	GetType() uint
 	GetSubType() uint
 	Encode() string
@@ -354,7 +427,8 @@ type Message interface {
 // Message - Ping
 
 type Communication_Message_Ping struct {
-	Time uint
+	Time          uint
+	SenderAddress string
 }
 
 func (m *Communication_Message_Ping) GetType() uint {
