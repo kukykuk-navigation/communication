@@ -35,7 +35,7 @@ type Manager struct {
 	packetCounterMutex         sync.Mutex
 }
 
-func InitializeManager(in_systemid, in_port, in_key, in_onboardAddress, in_groundstationAddress, in_antennaTrackerAddress string, in_handler CommunicationHandler) (*Manager, error) {
+func InitializeManager(in_systemid, in_port, in_key, in_groundstationAddress, in_onboardAddress, in_antennaTrackerAddress string, in_handler CommunicationHandler) (*Manager, error) {
 
 	var addr *net.UDPAddr
 	var conn *net.UDPConn
