@@ -88,7 +88,7 @@ func (m *Manager) Run() {
 
 	for {
 
-		n, _, err := m.Connection.ReadFromUDP(buffer)
+		n, addr, err := m.Connection.ReadFromUDP(buffer)
 		if err != nil {
 			panic(err)
 		}
@@ -114,7 +114,7 @@ func (m *Manager) Run() {
 
 			// if not ACK or NACK
 			if packet.Type != 2 {
-				go m.Send2Groundstation(&Communication_Message_ACK{ACKId: packet.Counter})
+				go m.Send2Any(&Communication_Message_ACK{ACKId: packet.Counter}, addr.String())
 			}
 
 			//handler
