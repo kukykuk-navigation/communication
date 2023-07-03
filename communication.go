@@ -1,7 +1,6 @@
 package communication
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/hmac"
@@ -79,7 +78,7 @@ func (m *Manager) Run() {
 
 	for {
 
-		n, _, err := m.Connection.ReadFromUDP(buffer)
+		n, addr, err := m.Connection.ReadFromUDP(buffer)
 		if err != nil {
 			panic(err)
 		}
@@ -103,6 +102,10 @@ func (m *Manager) Run() {
 			decodeError = json.Unmarshal(decryptedPacket, &packet)
 			if decodeError == nil {
 
+				if packet.Type != 1 {
+					m.Send2Any(&Communication_Message_ACK{ACKId: packet.Counter}, addr.String())
+				}
+
 				DefaultHandler(packet)
 
 			} else {
@@ -114,25 +117,60 @@ func (m *Manager) Run() {
 
 }
 
-func (m *Manager) Send2Onboard(in_message interface{}) {
+func (m *Manager) Send2Any(in_message Message, in_address string) {
 
 	// Connect to the server
+	conn, err := net.Dial("udp", in_address)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
 
+	// encode packet
+	var packet = Communication_Packet{Counter: m.GetCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	encodedPacket, err := json.Marshal(packet)
+	if err != nil {
+		panic(err)
+	}
+
+	// Encrypt the Gob-encoded message
+	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
+	if err != nil {
+		panic(err)
+	}
+
+	// Calculate MAC
+	mac := generateMAC([]byte(m.Key), encryptedData)
+
+	// Append MAC to the encrypted message
+	encryptedDataWithMAC := append(mac, encryptedData...)
+
+	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
+		panic(err)
+	}
+
+	m.PacketCounter = m.PacketCounter + 1
+
+}
+
+func (m *Manager) Send2Onboard(in_message Message) {
+
+	// Connect to the server
 	conn, err := net.Dial("udp", m.OnboardAddress)
 	if err != nil {
 		panic(err)
 	}
 	defer conn.Close()
 
-	// Serialize the message structure to Gob
-	var buf bytes.Buffer
-	enc := gob.NewEncoder(&buf)
-	if err := enc.Encode(in_message); err != nil {
+	// encode packet
+	var packet = Communication_Packet{Counter: m.GetCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	encodedPacket, err := json.Marshal(packet)
+	if err != nil {
 		panic(err)
 	}
 
 	// Encrypt the Gob-encoded message
-	encryptedData, err := encrypt([]byte(m.Key), buf.Bytes())
+	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
 	if err != nil {
 		panic(err)
 	}
@@ -187,25 +225,24 @@ func (m *Manager) Send2Groundstation(in_message Message) {
 
 }
 
-func (m *Manager) Send2AntennaTracker(in_message interface{}) {
+func (m *Manager) Send2AntennaTracker(in_message Message) {
 
 	// Connect to the server
-
 	conn, err := net.Dial("udp", m.AntennaTrackerAddress)
 	if err != nil {
 		panic(err)
 	}
 	defer conn.Close()
 
-	// Serialize the message structure to Gob
-	var buf bytes.Buffer
-	enc := gob.NewEncoder(&buf)
-	if err := enc.Encode(in_message); err != nil {
+	// encode packet
+	var packet = Communication_Packet{Counter: m.GetCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	encodedPacket, err := json.Marshal(packet)
+	if err != nil {
 		panic(err)
 	}
 
 	// Encrypt the Gob-encoded message
-	encryptedData, err := encrypt([]byte(m.Key), buf.Bytes())
+	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
 	if err != nil {
 		panic(err)
 	}
