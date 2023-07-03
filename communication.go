@@ -41,9 +41,22 @@ func InitializeManager(in_systemid, in_port, in_key, in_groundstationAddress, in
 	var conn *net.UDPConn
 	var addrError, connError error
 
-	addr, addrError = net.ResolveUDPAddr("udp", ":"+in_port)
-	if addrError != nil {
-		return &Manager{}, addrError
+	switch in_systemid {
+	case "GS":
+		addr, addrError = net.ResolveUDPAddr("udp", in_groundstationAddress)
+		if addrError != nil {
+			return &Manager{}, addrError
+		}
+	case "OB":
+		addr, addrError = net.ResolveUDPAddr("udp", in_onboardAddress)
+		if addrError != nil {
+			return &Manager{}, addrError
+		}
+	case "AT":
+		addr, addrError = net.ResolveUDPAddr("udp", in_antennaTrackerAddress)
+		if addrError != nil {
+			return &Manager{}, addrError
+		}
 	}
 
 	conn, connError = net.ListenUDP("udp", addr)
