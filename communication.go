@@ -316,8 +316,7 @@ type Message interface {
 // Message - Ping
 
 type Communication_Message_Ping struct {
-	Counter  uint
-	SenderID string
+	Time uint
 }
 
 func (m *Communication_Message_Ping) GetType() uint {
@@ -334,9 +333,7 @@ func (m *Communication_Message_Ping) Encode() string {
 // Message - ACK
 
 type Communication_Message_ACK struct {
-	Counter  uint
-	SenderID string
-	ACKId    uint
+	ACKId uint
 }
 
 func (m *Communication_Message_ACK) GetType() uint {
@@ -353,9 +350,7 @@ func (m *Communication_Message_ACK) Encode() string {
 // Message - NACK
 
 type Communication_Message_NACK struct {
-	Counter  uint
-	SenderID string
-	NACKId   uint
+	NACKId uint
 }
 
 func (m *Communication_Message_NACK) GetType() uint {
@@ -370,55 +365,39 @@ func (m *Communication_Message_NACK) Encode() string {
 }
 
 type Communication_Message_ControlMode_Set struct {
-	Counter     uint
-	SenderID    string
 	ControlMode uint
 }
 
 type Communication_Message_ControlMode_Report struct {
-	Counter     uint
-	SenderID    string
 	ControlMode uint
 }
 
 type Communication_Message_TargetTracking_Set struct {
-	Counter  uint
-	SenderID string
-	CenterX  float64
-	CenterY  float64
+	CenterX float64
+	CenterY float64
 }
 
 type Communication_Message_TargetTracking_Get struct {
-	Counter  uint
-	SenderID string
-	XMin     float64
-	XMax     float64
-	YMin     float64
-	YMax     float64
+	XMin float64
+	XMax float64
+	YMin float64
+	YMax float64
 }
 
 type Communication_Message_TargetTrackingStatus struct {
-	Counter  uint
-	SenderID string
-	Status   bool
+	Status bool
 }
 
 type Communication_Message_GuidanceState struct {
-	Counter        uint
-	SenderID       string
 	DistanceToNext float64
 	HeadingToNext  float64
 }
 
 type Communication_Message_BatteryVoltage struct {
-	Counter  uint
-	SenderID string
-	Voltage  float64
+	Voltage float64
 }
 
 type Communication_Message_OnboardSystems struct {
-	Counter        uint
-	SenderID       string
 	Video1In       uint
 	Video2In       uint
 	TargetTracking uint
