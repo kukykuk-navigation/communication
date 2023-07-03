@@ -151,50 +151,39 @@ func (m *Manager) Send2Onboard(in_message interface{}) {
 
 }
 
-func (m *Manager) Send2Groundstation(in_message interface{}) {
+func (m *Manager) Send2Groundstation(in_message Message) {
 
-	if msg, ok := in_message.(Message); ok {
-
-		// Connect to the server
-		conn, err := net.Dial("udp", m.GroundstationAddress)
-		if err != nil {
-			panic(err)
-		}
-		defer conn.Close()
-
-		// encode message
-		encodedMessage, err := json.Marshal(in_message)
-		if err != nil {
-			panic(err)
-		}
-
-		// encode packet
-		var packet = Communication_Packet{Counter: m.GetCounter(), Type: msg.getType(), SubType: msg.getSubType(), Message: string(encodedMessage)}
-		encodedPacket, err := json.Marshal(packet)
-		if err != nil {
-			panic(err)
-		}
-
-		// Encrypt the Gob-encoded message
-		encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
-		if err != nil {
-			panic(err)
-		}
-
-		// Calculate MAC
-		mac := generateMAC([]byte(m.Key), encryptedData)
-
-		// Append MAC to the encrypted message
-		encryptedDataWithMAC := append(mac, encryptedData...)
-
-		if _, err := conn.Write(encryptedDataWithMAC); err != nil {
-			panic(err)
-		}
-
-		m.PacketCounter = m.PacketCounter + 1
-	} else {
-		panic(ok)
+	// Connect to the server
+	conn, err := net.Dial("udp", m.GroundstationAddress)
+	if err != nil {
+		panic(err)
 	}
+	defer conn.Close()
+
+	// encode packet
+	var packet = Communication_Packet{Counter: m.GetCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	encodedPacket, err := json.Marshal(packet)
+	if err != nil {
+		panic(err)
+	}
+
+	// Encrypt the Gob-encoded message
+	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
+	if err != nil {
+		panic(err)
+	}
+
+	// Calculate MAC
+	mac := generateMAC([]byte(m.Key), encryptedData)
+
+	// Append MAC to the encrypted message
+	encryptedDataWithMAC := append(mac, encryptedData...)
+
+	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
+		panic(err)
+	}
+
+	m.PacketCounter = m.PacketCounter + 1
 
 }
 
@@ -319,9 +308,9 @@ type Communication_Packet struct {
 }
 
 type Message interface {
-	getType() uint
-	getSubType() uint
-	encode() []byte
+	GetType() uint
+	GetSubType() uint
+	Encode() string
 }
 
 // Message - Ping
@@ -331,15 +320,15 @@ type Communication_Message_Ping struct {
 	SenderID string
 }
 
-func (m *Communication_Message_Ping) getType() uint {
+func (m *Communication_Message_Ping) GetType() uint {
 	return 1
 }
-func (m *Communication_Message_Ping) getSubType() uint {
+func (m *Communication_Message_Ping) GetSubType() uint {
 	return 1
 }
-func (m *Communication_Message_Ping) encode() []byte {
+func (m *Communication_Message_Ping) Encode() string {
 	encoded, _ := json.Marshal(m)
-	return encoded
+	return string(encoded)
 }
 
 // Message - ACK
@@ -350,15 +339,15 @@ type Communication_Message_ACK struct {
 	ACKId    uint
 }
 
-func (m *Communication_Message_ACK) getType() uint {
+func (m *Communication_Message_ACK) GetType() uint {
 	return 2
 }
-func (m *Communication_Message_ACK) getSubType() uint {
+func (m *Communication_Message_ACK) GetSubType() uint {
 	return 1
 }
-func (m *Communication_Message_ACK) encode() []byte {
+func (m *Communication_Message_ACK) Encode() string {
 	encoded, _ := json.Marshal(m)
-	return encoded
+	return string(encoded)
 }
 
 // Message - NACK
@@ -369,15 +358,15 @@ type Communication_Message_NACK struct {
 	NACKId   uint
 }
 
-func (m *Communication_Message_NACK) getType() uint {
+func (m *Communication_Message_NACK) GetType() uint {
 	return 2
 }
-func (m *Communication_Message_NACK) getSubType() uint {
+func (m *Communication_Message_NACK) GetSubType() uint {
 	return 2
 }
-func (m *Communication_Message_NACK) encode() []byte {
+func (m *Communication_Message_NACK) Encode() string {
 	encoded, _ := json.Marshal(m)
-	return encoded
+	return string(encoded)
 }
 
 type Communication_Message_ControlMode_Set struct {
