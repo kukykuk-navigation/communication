@@ -111,8 +111,14 @@ func (m *Manager) Run() {
 			if decodeError != nil {
 				panic(decodeError)
 			}
-			go m.Send2Groundstation(&Communication_Message_ACK{ACKId: packet.Counter})
-			DefaultHandler(packet)
+
+			// if not ACK or NACK
+			if packet.Type != 2 {
+				go m.Send2Groundstation(&Communication_Message_ACK{ACKId: packet.Counter})
+			}
+
+			//handler
+			m.Handler(packet)
 
 		}
 	}
