@@ -218,7 +218,7 @@ func (m *Manager) Send2Any(in_message Communication_Message, in_address string) 
 func (m *Manager) Send2Onboard(in_message Communication_Message) {
 
 	// Connect to the server
-	conn, err := net.Dial("udp", m.GetAntennaTrackerAddress())
+	conn, err := net.Dial("udp", m.GetOnboardAddress())
 	if err != nil {
 		panic(err)
 	}
