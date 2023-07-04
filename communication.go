@@ -547,6 +547,24 @@ func (m *Communication_Message_VisualTrackingData_Init) Encode() string {
 	return string(encoded)
 }
 
+// visual tracking - stop
+
+type Communication_Message_VisualTrackingData_Stop struct {
+	RelX float64
+	RelY float64
+}
+
+func (m *Communication_Message_VisualTrackingData_Stop) GetType() uint {
+	return 4
+}
+func (m *Communication_Message_VisualTrackingData_Stop) GetSubType() uint {
+	return 3
+}
+func (m *Communication_Message_VisualTrackingData_Stop) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
 // control mode - report
 
 type Communication_Message_ControlMode_Report struct {
