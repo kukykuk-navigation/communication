@@ -505,3 +505,24 @@ func (m *Communication_Message_NavigationData_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
+
+// custom protocol
+
+type Communication_Message_VisualTrackingData_Report struct {
+	RelXMin float64
+	RelXMax float64
+	RelYMin float64
+	RelYMax float64
+	Active  bool
+}
+
+func (m *Communication_Message_VisualTrackingData_Report) GetType() uint {
+	return 3
+}
+func (m *Communication_Message_VisualTrackingData_Report) GetSubType() uint {
+	return 2
+}
+func (m *Communication_Message_VisualTrackingData_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
