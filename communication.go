@@ -550,7 +550,7 @@ func (m *Communication_Message_VisualTrackingData_Init) Encode() string {
 // control mode - report
 
 type Communication_Message_ControlMode_Report struct {
-	ControlMode string
+	ControlMode int
 }
 
 func (m *Communication_Message_ControlMode_Report) GetType() uint {
@@ -567,7 +567,7 @@ func (m *Communication_Message_ControlMode_Report) Encode() string {
 // control mode - set
 
 type Communication_Message_ControlMode_Set struct {
-	ControlMode string
+	ControlMode int
 }
 
 func (m *Communication_Message_ControlMode_Set) GetType() uint {
@@ -651,5 +651,3 @@ func (m *Communication_Message_PowerSystem_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
-
-// CMOOOOOON
