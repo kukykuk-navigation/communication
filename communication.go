@@ -532,10 +532,8 @@ func (m *Communication_Message_VisualTrackingData_Report) Encode() string {
 // visual tracking init
 
 type Communication_Message_VisualTrackingData_Init struct {
-	RelXMin float64
-	RelXMax float64
-	RelYMin float64
-	RelYMax float64
+	RelX float64
+	RelY float64
 }
 
 func (m *Communication_Message_VisualTrackingData_Init) GetType() uint {
