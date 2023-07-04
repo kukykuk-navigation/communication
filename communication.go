@@ -519,10 +519,10 @@ type Communication_Message_VisualTrackingData_Report struct {
 }
 
 func (m *Communication_Message_VisualTrackingData_Report) GetType() uint {
-	return 3
+	return 4
 }
 func (m *Communication_Message_VisualTrackingData_Report) GetSubType() uint {
-	return 2
+	return 1
 }
 func (m *Communication_Message_VisualTrackingData_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
