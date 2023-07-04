@@ -580,3 +580,74 @@ func (m *Communication_Message_ControlMode_Set) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
+
+// target estimate - report
+
+type Communication_Message_TargetEstimate_Report struct {
+	VerticalAngle   float64
+	HorizontalAngle float64
+}
+
+func (m *Communication_Message_TargetEstimate_Report) GetType() uint {
+	return 6
+}
+func (m *Communication_Message_TargetEstimate_Report) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_TargetEstimate_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// GNSS performance - report
+
+type Communication_Message_GNSSPerformance_Report struct {
+	GNSSFixType int
+}
+
+func (m *Communication_Message_GNSSPerformance_Report) GetType() uint {
+	return 7
+}
+func (m *Communication_Message_GNSSPerformance_Report) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_GNSSPerformance_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// guidance state - report
+
+type Communication_Message_GuidanceState_Report struct {
+	GuidanceMode           string
+	GuidanceDistanceToNext float64
+	GuidanceTrackToNext    float64
+}
+
+func (m *Communication_Message_GuidanceState_Report) GetType() uint {
+	return 8
+}
+func (m *Communication_Message_GuidanceState_Report) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_GuidanceState_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// powersystem - report
+
+type Communication_Message_PowerSystem_Report struct {
+	BatteryVoltage float64
+}
+
+func (m *Communication_Message_PowerSystem_Report) GetType() uint {
+	return 9
+}
+func (m *Communication_Message_PowerSystem_Report) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_PowerSystem_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
