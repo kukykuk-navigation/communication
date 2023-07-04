@@ -635,19 +635,19 @@ func (m *Communication_Message_GuidanceState_Report) Encode() string {
 	return string(encoded)
 }
 
-// powersystem - report
+// battery - report
 
-type Communication_Message_PowerSystem_Report struct {
-	BatteryVoltage float64
+type Communication_Message_Battery_Report struct {
+	Voltage float64
 }
 
-func (m *Communication_Message_PowerSystem_Report) GetType() uint {
+func (m *Communication_Message_Battery_Report) GetType() uint {
 	return 9
 }
-func (m *Communication_Message_PowerSystem_Report) GetSubType() uint {
+func (m *Communication_Message_Battery_Report) GetSubType() uint {
 	return 1
 }
-func (m *Communication_Message_PowerSystem_Report) Encode() string {
+func (m *Communication_Message_Battery_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
