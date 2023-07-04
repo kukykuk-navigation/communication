@@ -479,7 +479,7 @@ func (m *Communication_Message_NACK) Encode() string {
 
 // CUSTOM PROTOCOL
 
-// navigation data report
+// navigation data - report
 
 type Communication_Message_NavigationData_Report struct {
 	Latitude  float64
@@ -508,7 +508,7 @@ func (m *Communication_Message_NavigationData_Report) Encode() string {
 	return string(encoded)
 }
 
-// visual tracking report
+// visual tracking - report
 
 type Communication_Message_VisualTrackingData_Report struct {
 	RelXMin float64
@@ -529,7 +529,7 @@ func (m *Communication_Message_VisualTrackingData_Report) Encode() string {
 	return string(encoded)
 }
 
-// visual tracking init
+// visual tracking - init
 
 type Communication_Message_VisualTrackingData_Init struct {
 	RelX float64
