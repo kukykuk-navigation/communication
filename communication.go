@@ -547,23 +547,6 @@ func (m *Communication_Message_VisualTrackingData_Init) Encode() string {
 	return string(encoded)
 }
 
-// control mode - set
-
-type Communication_Message_ControlMode_Set struct {
-	ControlMode string
-}
-
-func (m *Communication_Message_ControlMode_Set) GetType() uint {
-	return 5
-}
-func (m *Communication_Message_ControlMode_Set) GetSubType() uint {
-	return 1
-}
-func (m *Communication_Message_ControlMode_Set) Encode() string {
-	encoded, _ := json.Marshal(m)
-	return string(encoded)
-}
-
 // control mode - report
 
 type Communication_Message_ControlMode_Report struct {
@@ -574,9 +557,26 @@ func (m *Communication_Message_ControlMode_Report) GetType() uint {
 	return 5
 }
 func (m *Communication_Message_ControlMode_Report) GetSubType() uint {
-	return 2
+	return 1
 }
 func (m *Communication_Message_ControlMode_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// control mode - set
+
+type Communication_Message_ControlMode_Set struct {
+	ControlMode string
+}
+
+func (m *Communication_Message_ControlMode_Set) GetType() uint {
+	return 5
+}
+func (m *Communication_Message_ControlMode_Set) GetSubType() uint {
+	return 2
+}
+func (m *Communication_Message_ControlMode_Set) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
