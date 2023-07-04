@@ -519,12 +519,32 @@ type Communication_Message_VisualTrackingData_Report struct {
 }
 
 func (m *Communication_Message_VisualTrackingData_Report) GetType() uint {
-	return 3
+	return 4
 }
 func (m *Communication_Message_VisualTrackingData_Report) GetSubType() uint {
-	return 2
+	return 1
 }
 func (m *Communication_Message_VisualTrackingData_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// visual tracking init
+
+type Communication_Message_VisualTrackingData_Init struct {
+	RelXMin float64
+	RelXMax float64
+	RelYMin float64
+	RelYMax float64
+}
+
+func (m *Communication_Message_VisualTrackingData_Init) GetType() uint {
+	return 4
+}
+func (m *Communication_Message_VisualTrackingData_Init) GetSubType() uint {
+	return 2
+}
+func (m *Communication_Message_VisualTrackingData_Init) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
