@@ -634,13 +634,17 @@ func (m *Communication_Message_TargetEstimate_Report) Encode() string {
 
 type Communication_Message_GNSSPerformance_Report struct {
 	FixType           int
+	Latitude          float64
+	Longitude         float64
+	AltitudeMSL       float64
+	Vel               float64
+	Cog               float64
+	Yaw               float64
 	HDOP              float64
 	VDOP              float64
 	HACC              float64
 	VACC              float64
-	SACC              float64
-	Cog               float64
-	Yaw               float64
+	VelACC            float64
 	SatellitesVisible uint
 }
 
