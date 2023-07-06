@@ -21,7 +21,8 @@ type Manager struct {
 	SystemID                   string
 	Address                    *net.UDPAddr
 	Connection                 *net.UDPConn
-	Handler                    func(Communication_Packet)
+	RXHandler                  func(Communication_Packet)
+	TXHandler                  func(Communication_Packet)
 	Key                        string
 	KeyMutex                   sync.Mutex
 	GroundstationAddress       string
@@ -34,7 +35,7 @@ type Manager struct {
 	packetCounterMutex         sync.Mutex
 }
 
-func InitializeManager(in_systemid, in_port, in_key, in_groundstationAddress, in_onboardAddress, in_antennaTrackerAddress string, in_handler CommunicationHandler) (*Manager, error) {
+func InitializeManager(in_systemid, in_port, in_key, in_groundstationAddress, in_onboardAddress, in_antennaTrackerAddress string, in_RXhandler, in_TXHandler CommunicationHandler) (*Manager, error) {
 
 	var addr *net.UDPAddr
 	var conn *net.UDPConn
@@ -71,7 +72,7 @@ func InitializeManager(in_systemid, in_port, in_key, in_groundstationAddress, in
 		key = in_key
 	}
 
-	return &Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, packetCounter: 0, OnboardAddress: in_onboardAddress, GroundstationAddress: in_groundstationAddress, AntennaTrackerAddress: in_antennaTrackerAddress, Handler: in_handler}, nil
+	return &Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, packetCounter: 0, OnboardAddress: in_onboardAddress, GroundstationAddress: in_groundstationAddress, AntennaTrackerAddress: in_antennaTrackerAddress, RXHandler: in_RXhandler, TXHandler: in_TXHandler}, nil
 }
 
 func (m *Manager) GetCounter() uint {
@@ -172,8 +173,8 @@ func (m *Manager) Run() {
 			}
 
 			// Handlers
-			go m.MinimalHandler(packet)
-			go m.Handler(packet)
+			go m.MinimalRXHandler(packet)
+			go m.RXHandler(packet)
 
 		}
 	}
@@ -195,6 +196,9 @@ func (m *Manager) Send2Any(in_message Communication_Message, in_address string) 
 	if err != nil {
 		panic(err)
 	}
+
+	// handler
+	m.TXHandler(packet)
 
 	// Encrypt the Gob-encoded message
 	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
@@ -230,6 +234,9 @@ func (m *Manager) Send2Onboard(in_message Communication_Message) {
 		panic(err)
 	}
 
+	// handler
+	m.TXHandler(packet)
+
 	// Encrypt the Gob-encoded message
 	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
 	if err != nil {
@@ -263,6 +270,9 @@ func (m *Manager) Send2Groundstation(in_message Communication_Message) {
 	if err != nil {
 		panic(err)
 	}
+
+	// handler
+	m.TXHandler(packet)
 
 	// Encrypt the Gob-encoded message
 	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
@@ -298,6 +308,9 @@ func (m *Manager) Send2AntennaTracker(in_message Communication_Message) {
 		panic(err)
 	}
 
+	// handler
+	m.TXHandler(packet)
+
 	// Encrypt the Gob-encoded message
 	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
 	if err != nil {
@@ -316,7 +329,7 @@ func (m *Manager) Send2AntennaTracker(in_message Communication_Message) {
 
 }
 
-func (m *Manager) MinimalHandler(in_packet Communication_Packet) {
+func (m *Manager) MinimalRXHandler(in_packet Communication_Packet) {
 
 	// if PING perform the linking
 	if in_packet.Type == 1 {
@@ -353,7 +366,7 @@ func (m *Manager) MinimalHandler(in_packet Communication_Packet) {
 	}
 }
 
-func DefaultHandler(in_packet Communication_Packet) {
+func EmptyHandler(in_packet Communication_Packet) {
 
 	//fmt.Printf("%+v\n", in_packet)
 
