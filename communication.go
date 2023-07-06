@@ -633,7 +633,15 @@ func (m *Communication_Message_TargetEstimate_Report) Encode() string {
 // GNSS performance - report
 
 type Communication_Message_GNSSPerformance_Report struct {
-	GNSSFixType int
+	FixType           int
+	HDOP              float64
+	VDOP              float64
+	HACC              float64
+	VACC              float64
+	SACC              float64
+	Cog               float64
+	Yaw               float64
+	SatellitesVisible uint
 }
 
 func (m *Communication_Message_GNSSPerformance_Report) GetType() uint {
