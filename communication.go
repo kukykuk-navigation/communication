@@ -679,23 +679,6 @@ func (m *Communication_Message_GuidanceState_Report) Encode() string {
 	return string(encoded)
 }
 
-// battery - report
-
-type Communication_Message_Battery_Report struct {
-	Voltage float64
-}
-
-func (m *Communication_Message_Battery_Report) GetType() uint {
-	return 9
-}
-func (m *Communication_Message_Battery_Report) GetSubType() uint {
-	return 1
-}
-func (m *Communication_Message_Battery_Report) Encode() string {
-	encoded, _ := json.Marshal(m)
-	return string(encoded)
-}
-
 // power - report
 
 type Communication_Message_Power_Report struct {
@@ -705,7 +688,7 @@ type Communication_Message_Power_Report struct {
 }
 
 func (m *Communication_Message_Power_Report) GetType() uint {
-	return 10
+	return 9
 }
 func (m *Communication_Message_Power_Report) GetSubType() uint {
 	return 1
@@ -732,7 +715,7 @@ type Communication_Message_FlightPlan_Report struct {
 }
 
 func (m *Communication_Message_FlightPlan_Report) GetType() uint {
-	return 11
+	return 10
 }
 func (m *Communication_Message_FlightPlan_Report) GetSubType() uint {
 	return 1
@@ -750,12 +733,30 @@ type Communication_Message_FlightPlan_Set struct {
 }
 
 func (m *Communication_Message_FlightPlan_Set) GetType() uint {
-	return 11
+	return 10
 }
 func (m *Communication_Message_FlightPlan_Set) GetSubType() uint {
 	return 2
 }
 func (m *Communication_Message_FlightPlan_Set) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// flight controller - report
+
+type Communication_Message_FlightController_Report struct {
+	BaseMode   uint8
+	CustomMode uint32
+}
+
+func (m *Communication_Message_FlightController_Report) GetType() uint {
+	return 11
+}
+func (m *Communication_Message_FlightController_Report) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_FlightController_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
