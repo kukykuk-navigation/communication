@@ -636,15 +636,16 @@ type Communication_Message_GNSSPerformance_Report struct {
 	FixType           uint
 	Latitude          float64
 	Longitude         float64
-	AltitudeMSL       float64
-	Vel               float64
-	Cog               float64
-	Yaw               float64
-	HDOP              float64
-	VDOP              float64
-	HACC              float64
-	VACC              float64
+	Altitude          float64
+	Velocity          float64
+	Heading           float64
+	Track             float64
+	HorDOP            float64
+	VerDOP            float64
+	HorACC            float64
+	VerACC            float64
 	VelACC            float64
+	TrkACC            float64
 	SatellitesVisible uint
 }
 
