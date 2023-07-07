@@ -714,3 +714,48 @@ func (m *Communication_Message_Power_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
+
+// flight plan - point
+
+type Communication_FlightPlanPoint struct {
+	Label     string
+	Latitude  float64
+	Longitude float64
+	Altitude  float64
+}
+
+// flight plan - report
+
+type Communication_Message_FlightPlan_Report struct {
+	Label  string
+	Points []Communication_FlightPlanPoint
+}
+
+func (m *Communication_Message_FlightPlan_Report) GetType() uint {
+	return 11
+}
+func (m *Communication_Message_FlightPlan_Report) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_FlightPlan_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// flight plan - set
+
+type Communication_Message_FlightPlan_Set struct {
+	Label  string
+	Points []Communication_FlightPlanPoint
+}
+
+func (m *Communication_Message_FlightPlan_Set) GetType() uint {
+	return 11
+}
+func (m *Communication_Message_FlightPlan_Set) GetSubType() uint {
+	return 2
+}
+func (m *Communication_Message_FlightPlan_Set) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
