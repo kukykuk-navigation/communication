@@ -633,7 +633,7 @@ func (m *Communication_Message_TargetEstimate_Report) Encode() string {
 // GNSS performance - report
 
 type Communication_Message_GNSSPerformance_Report struct {
-	FixType           int
+	FixType           uint
 	Latitude          float64
 	Longitude         float64
 	AltitudeMSL       float64
