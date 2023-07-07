@@ -695,3 +695,22 @@ func (m *Communication_Message_Battery_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
+
+// power - report
+
+type Communication_Message_Power_Report struct {
+	VoltageLogic   float64
+	VoltageServo   float64
+	VoltageBattery float64
+}
+
+func (m *Communication_Message_Power_Report) GetType() uint {
+	return 10
+}
+func (m *Communication_Message_Power_Report) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_Power_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
