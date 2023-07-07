@@ -615,8 +615,9 @@ func (m *Communication_Message_ControlMode_Set) Encode() string {
 // target estimate - report
 
 type Communication_Message_TargetEstimate_Report struct {
-	VerticalAngle   float64
-	HorizontalAngle float64
+	Roll  float64
+	Pitch float64
+	Yaw   float64
 }
 
 func (m *Communication_Message_TargetEstimate_Report) GetType() uint {
