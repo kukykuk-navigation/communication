@@ -761,3 +761,25 @@ func (m *Communication_Message_FlightController_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
+
+// onboard systems - report
+
+type Communication_Message_OnboardSystems_Report struct {
+	ControlLoop       float64
+	TransmitToFC      float64
+	ReceiveFromFC     float64
+	FrontCameraVideo  float64
+	BottomCameraVideo float64
+	VisualTracking    float64
+}
+
+func (m *Communication_Message_OnboardSystems_Report) GetType() uint {
+	return 12
+}
+func (m *Communication_Message_OnboardSystems_Report) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_OnboardSystems_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
