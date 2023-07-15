@@ -580,17 +580,20 @@ func (m *Communication_Message_VisualTrackingData_Stop) Encode() string {
 
 // control mode - report
 
-type Communication_Message_ControlMode_Report struct {
-	ControlMode int
+type Communication_Message_Control_Report struct {
+	ControlMode         uint
+	ControlManualMode   uint
+	ManualInputValid    bool
+	AutopilotInputValid bool
 }
 
-func (m *Communication_Message_ControlMode_Report) GetType() uint {
+func (m *Communication_Message_Control_Report) GetType() uint {
 	return 5
 }
-func (m *Communication_Message_ControlMode_Report) GetSubType() uint {
+func (m *Communication_Message_Control_Report) GetSubType() uint {
 	return 1
 }
-func (m *Communication_Message_ControlMode_Report) Encode() string {
+func (m *Communication_Message_Control_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
@@ -598,7 +601,7 @@ func (m *Communication_Message_ControlMode_Report) Encode() string {
 // control mode - set
 
 type Communication_Message_ControlMode_Set struct {
-	ControlMode int
+	ControlMode uint
 }
 
 func (m *Communication_Message_ControlMode_Set) GetType() uint {
@@ -608,6 +611,62 @@ func (m *Communication_Message_ControlMode_Set) GetSubType() uint {
 	return 2
 }
 func (m *Communication_Message_ControlMode_Set) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// control manual mode - set
+
+type Communication_Message_ControlManualMode_Set struct {
+	ControlManualMode uint
+}
+
+func (m *Communication_Message_ControlManualMode_Set) GetType() uint {
+	return 5
+}
+func (m *Communication_Message_ControlManualMode_Set) GetSubType() uint {
+	return 3
+}
+func (m *Communication_Message_ControlManualMode_Set) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// control manual input - set
+
+type Communication_Message_ManualInput_Set struct {
+	RollAxis  float64
+	PitchAxis float64
+	YawAxis   float64
+	PowerAxis float64
+}
+
+func (m *Communication_Message_ManualInput_Set) GetType() uint {
+	return 5
+}
+func (m *Communication_Message_ManualInput_Set) GetSubType() uint {
+	return 4
+}
+func (m *Communication_Message_ManualInput_Set) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// control autopilot input - set
+
+type Communication_Message_AutopilotInput_Set struct {
+	Airspeed float64
+	Altitude float64
+	Heading  float64
+}
+
+func (m *Communication_Message_AutopilotInput_Set) GetType() uint {
+	return 5
+}
+func (m *Communication_Message_AutopilotInput_Set) GetSubType() uint {
+	return 5
+}
+func (m *Communication_Message_AutopilotInput_Set) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
@@ -771,6 +830,8 @@ type Communication_Message_OnboardSystems_Report struct {
 	FrontCameraVideo  float64
 	BottomCameraVideo float64
 	VisualTracking    float64
+	ManualInput       float64
+	AutopilotInput    float64
 }
 
 func (m *Communication_Message_OnboardSystems_Report) GetType() uint {
@@ -780,6 +841,27 @@ func (m *Communication_Message_OnboardSystems_Report) GetSubType() uint {
 	return 1
 }
 func (m *Communication_Message_OnboardSystems_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// camera - front - offsets
+
+type Communication_Message_CameraParameters_Report struct {
+	ID          uint
+	LatencyMS   int64
+	OffsetRoll  float64
+	OffsetPitch float64
+	OffsetYaw   float64
+}
+
+func (m *Communication_Message_CameraParameters_Report) GetType() uint {
+	return 13
+}
+func (m *Communication_Message_CameraParameters_Report) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_CameraParameters_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
