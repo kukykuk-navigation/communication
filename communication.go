@@ -849,7 +849,6 @@ func (m *Communication_Message_OnboardSystems_Report) Encode() string {
 
 type Communication_Message_CameraParameters_Report struct {
 	ID          uint
-	LatencyMS   int64
 	OffsetRoll  float64
 	OffsetPitch float64
 	OffsetYaw   float64
