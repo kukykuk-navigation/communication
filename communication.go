@@ -742,8 +742,6 @@ func (m *Communication_Message_GuidanceState_Report) Encode() string {
 // power - report
 
 type Communication_Message_Power_Report struct {
-	VoltageLogic   float64
-	VoltageServo   float64
 	VoltageBattery float64
 }
 
