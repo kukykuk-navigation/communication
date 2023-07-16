@@ -833,7 +833,7 @@ type Communication_Message_OnboardSystems_Report struct {
 }
 
 func (m *Communication_Message_OnboardSystems_Report) GetType() uint {
-	return 12
+	return 13
 }
 func (m *Communication_Message_OnboardSystems_Report) GetSubType() uint {
 	return 1
@@ -853,7 +853,7 @@ type Communication_Message_CameraParameters_Report struct {
 }
 
 func (m *Communication_Message_CameraParameters_Report) GetType() uint {
-	return 13
+	return 11
 }
 func (m *Communication_Message_CameraParameters_Report) GetSubType() uint {
 	return 1
