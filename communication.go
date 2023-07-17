@@ -331,27 +331,33 @@ func (m *Manager) Send2AntennaTracker(in_message Communication_Message, in_reque
 
 func (m *Manager) MinimalRXHandler(in_packet Communication_Packet) {
 
-	// if PING perform the linking
-	if in_packet.Type == 1 {
+	MessagePing := Communication_Message_Ping{}
 
-		var message_ping Communication_Message_Ping
-		if err := json.Unmarshal([]byte(in_packet.Message), &message_ping); err != nil {
+	// if PING perform the linking
+
+	if in_packet.Type == MessagePing.GetType() && in_packet.SubType == MessagePing.GetSubType() {
+
+		if err := json.Unmarshal([]byte(in_packet.Message), &MessagePing); err != nil {
 			panic(err)
 		}
 
 		switch in_packet.SenderID {
 		case "GS":
-			m.SetGroundstationAddress(message_ping.SenderAddress)
+			m.SetGroundstationAddress(MessagePing.SenderAddress)
 		case "OB":
-			m.SetGroundstationAddress(message_ping.SenderAddress)
+			m.SetGroundstationAddress(MessagePing.SenderAddress)
 		case "AT":
-			m.SetGroundstationAddress(message_ping.SenderAddress)
+			m.SetGroundstationAddress(MessagePing.SenderAddress)
 		default:
 		}
 	}
 
+	MessageACK := Communication_Message_ACK{}
+	MessageNACK := Communication_Message_ACK{}
+
 	// if not ACK or NACK
-	if in_packet.Type != 2 {
+
+	if (in_packet.Type != MessageACK.GetType() && in_packet.SubType != MessageACK.GetSubType()) || (in_packet.Type != MessageNACK.GetType() && in_packet.SubType != MessageNACK.GetSubType()) {
 
 		if in_packet.RequestACK {
 
