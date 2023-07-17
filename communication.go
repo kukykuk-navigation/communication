@@ -345,9 +345,9 @@ func (m *Manager) MinimalRXHandler(in_packet Communication_Packet) {
 		case "GS":
 			m.SetGroundstationAddress(MessagePing.SenderAddress)
 		case "OB":
-			m.SetGroundstationAddress(MessagePing.SenderAddress)
+			m.SetOnboardAddress(MessagePing.SenderAddress)
 		case "AT":
-			m.SetGroundstationAddress(MessagePing.SenderAddress)
+			m.SetAntennaTrackerAddress(MessagePing.SenderAddress)
 		default:
 		}
 	}
