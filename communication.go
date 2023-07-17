@@ -181,7 +181,7 @@ func (m *Manager) Run() {
 
 }
 
-func (m *Manager) Send2Any(in_message Communication_Message, in_address string) {
+func (m *Manager) Send2Any(in_message Communication_Message, in_address string, in_requestACK bool) {
 
 	// Connect to the server
 	conn, err := net.Dial("udp", in_address)
@@ -191,7 +191,7 @@ func (m *Manager) Send2Any(in_message Communication_Message, in_address string) 
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
@@ -218,7 +218,7 @@ func (m *Manager) Send2Any(in_message Communication_Message, in_address string) 
 
 }
 
-func (m *Manager) Send2Onboard(in_message Communication_Message) {
+func (m *Manager) Send2Onboard(in_message Communication_Message, in_requestACK bool) {
 
 	// Connect to the server
 	conn, err := net.Dial("udp", m.GetOnboardAddress())
@@ -228,7 +228,7 @@ func (m *Manager) Send2Onboard(in_message Communication_Message) {
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
@@ -255,7 +255,7 @@ func (m *Manager) Send2Onboard(in_message Communication_Message) {
 
 }
 
-func (m *Manager) Send2Groundstation(in_message Communication_Message) {
+func (m *Manager) Send2Groundstation(in_message Communication_Message, in_requestACK bool) {
 
 	// Connect to the server
 	conn, err := net.Dial("udp", m.GetGroundstationAddress())
@@ -265,7 +265,7 @@ func (m *Manager) Send2Groundstation(in_message Communication_Message) {
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
@@ -292,7 +292,7 @@ func (m *Manager) Send2Groundstation(in_message Communication_Message) {
 
 }
 
-func (m *Manager) Send2AntennaTracker(in_message Communication_Message) {
+func (m *Manager) Send2AntennaTracker(in_message Communication_Message, in_requestACK bool) {
 
 	// Connect to the server
 	conn, err := net.Dial("udp", m.GetAntennaTrackerAddress())
@@ -302,7 +302,7 @@ func (m *Manager) Send2AntennaTracker(in_message Communication_Message) {
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 		panic(err)
@@ -353,14 +353,17 @@ func (m *Manager) MinimalRXHandler(in_packet Communication_Packet) {
 	// if not ACK or NACK
 	if in_packet.Type != 2 {
 
-		switch in_packet.SenderID {
-		case "GS":
-			go m.Send2Groundstation(&Communication_Message_ACK{ACKId: in_packet.Counter})
-		case "OB":
-			go m.Send2Onboard(&Communication_Message_ACK{ACKId: in_packet.Counter})
-		case "AT":
-			go m.Send2AntennaTracker(&Communication_Message_ACK{ACKId: in_packet.Counter})
-		default:
+		if in_packet.RequestACK {
+
+			switch in_packet.SenderID {
+			case "GS":
+				go m.Send2Groundstation(&Communication_Message_ACK{ACKId: in_packet.Counter}, false)
+			case "OB":
+				go m.Send2Onboard(&Communication_Message_ACK{ACKId: in_packet.Counter}, false)
+			case "AT":
+				go m.Send2AntennaTracker(&Communication_Message_ACK{ACKId: in_packet.Counter}, false)
+			default:
+			}
 		}
 
 	}
@@ -425,11 +428,12 @@ func verifyMAC(key, mac, data []byte) bool {
 }
 
 type Communication_Packet struct {
-	SenderID string
-	Counter  uint
-	Type     uint
-	SubType  uint
-	Message  string
+	SenderID   string
+	Counter    uint
+	RequestACK bool
+	Type       uint
+	SubType    uint
+	Message    string
 }
 
 type Communication_Message interface {
