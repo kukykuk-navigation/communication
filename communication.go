@@ -475,7 +475,7 @@ func (m *Manager) MinimalRXHandler(in_packet Communication_Packet) {
 	if in_packet.Type == MessagePing.GetType() && in_packet.SubType == MessagePing.GetSubType() {
 
 		if err := json.Unmarshal([]byte(in_packet.Message), &MessagePing); err != nil {
-			panic(err)
+			return
 		}
 
 		switch in_packet.SenderID {
