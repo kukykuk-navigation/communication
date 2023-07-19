@@ -9,79 +9,129 @@ import (
 	"encoding/json"
 	"net"
 	"sync"
+	"time"
 )
 
 const (
-	default_key = "0123456789abcdef"
+	COMMUNICATION_DEFAULT_KEY = "0123456789abcdef"
 )
 
 type CommunicationHandler func(Communication_Packet)
 
 type Manager struct {
-	SystemID                   string
-	Address                    *net.UDPAddr
-	Connection                 *net.UDPConn
-	RXHandler                  func(Communication_Packet)
-	TXHandler                  func(Communication_Packet)
-	Key                        string
-	KeyMutex                   sync.Mutex
-	GroundstationAddress       string
-	GroundstationAddressMutex  sync.Mutex
-	OnboardAddress             string
-	OnboardAddressMutex        sync.Mutex
-	AntennaTrackerAddress      string
-	AntennaTrackerAddressMutex sync.Mutex
-	packetCounter              uint
-	packetCounterMutex         sync.Mutex
+	SystemID              string
+	Address               *net.UDPAddr
+	Connection            *net.UDPConn
+	Initialized           bool
+	Mutex                 sync.Mutex
+	RXHandler             func(Communication_Packet)
+	TXHandler             func(Communication_Packet)
+	Key                   string
+	GroundstationAddress  string
+	OnboardAddress        string
+	AntennaTrackerAddress string
+	packetCounter         uint
 }
 
-func InitializeManager(in_systemid, in_port, in_key, in_groundstationAddress, in_onboardAddress, in_antennaTrackerAddress string, in_RXhandler, in_TXHandler CommunicationHandler) (*Manager, error) {
+func NewCommunicationManager(in_systemid, in_key, in_groundstationAddress, in_onboardAddress, in_antennaTrackerAddress string, in_RXhandler, in_TXHandler CommunicationHandler) *Manager {
+	m := &Manager{
+		SystemID:              in_systemid,
+		GroundstationAddress:  in_groundstationAddress,
+		OnboardAddress:        in_onboardAddress,
+		AntennaTrackerAddress: in_antennaTrackerAddress,
+		RXHandler:             in_RXhandler,
+		TXHandler:             in_TXHandler,
+	}
+
+	if in_key == "" {
+		m.Key = COMMUNICATION_DEFAULT_KEY
+	} else {
+		m.Key = in_key
+	}
+
+	m.Initialze()
+
+	return m
+
+}
+
+func (m *Manager) Initialze() {
+
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
 
 	var addr *net.UDPAddr
 	var conn *net.UDPConn
 	var addrError, connError error
 
-	switch in_systemid {
+	switch m.SystemID {
 	case "GS":
-		addr, addrError = net.ResolveUDPAddr("udp", in_groundstationAddress)
+		addr, addrError = net.ResolveUDPAddr("udp", m.GroundstationAddress)
 		if addrError != nil {
-			return &Manager{}, addrError
+			if connError != nil {
+				m.Initialized = false
+				return
+			} else {
+				m.Address = addr
+			}
 		}
 	case "OB":
-		addr, addrError = net.ResolveUDPAddr("udp", in_onboardAddress)
+		addr, addrError = net.ResolveUDPAddr("udp", m.OnboardAddress)
 		if addrError != nil {
-			return &Manager{}, addrError
+			if connError != nil {
+				m.Initialized = false
+				return
+			} else {
+				m.Address = addr
+			}
 		}
 	case "AT":
-		addr, addrError = net.ResolveUDPAddr("udp", in_antennaTrackerAddress)
+		addr, addrError = net.ResolveUDPAddr("udp", m.AntennaTrackerAddress)
 		if addrError != nil {
-			return &Manager{}, addrError
+			if connError != nil {
+				m.Initialized = false
+				return
+			} else {
+				m.Address = addr
+			}
 		}
 	}
 
 	conn, connError = net.ListenUDP("udp", addr)
 	if connError != nil {
-		return &Manager{}, connError
-	}
-
-	var key string
-
-	if in_key == "" {
-		key = default_key
+		m.Initialized = false
+		return
 	} else {
-		key = in_key
+		m.Initialized = true
+		m.Connection = conn
 	}
 
-	return &Manager{SystemID: in_systemid, Address: addr, Connection: conn, Key: key, packetCounter: 0, OnboardAddress: in_onboardAddress, GroundstationAddress: in_groundstationAddress, AntennaTrackerAddress: in_antennaTrackerAddress, RXHandler: in_RXhandler, TXHandler: in_TXHandler}, nil
 }
 
-func (m *Manager) GetCounter() uint {
+func (m *Manager) isInitialized() bool {
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
+
+	return m.Initialized
+}
+
+func (m *Manager) getCounter() uint {
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
+
 	return m.packetCounter
 }
 
+func (m *Manager) getSystemID() string {
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
+
+	return m.SystemID
+}
+
 func (m *Manager) IncrementCounter() uint {
-	m.packetCounterMutex.Lock()
-	defer m.packetCounterMutex.Unlock()
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
 
 	m.packetCounter = m.packetCounter + 1
 	return m.packetCounter - 1
@@ -89,68 +139,90 @@ func (m *Manager) IncrementCounter() uint {
 }
 
 func (m *Manager) GetKey() string {
-	m.KeyMutex.Lock()
-	defer m.KeyMutex.Unlock()
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
 	return m.Key
 }
 
 func (m *Manager) SetKey(in_key string) {
-	m.KeyMutex.Lock()
-	defer m.KeyMutex.Unlock()
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
 	m.Key = in_key
 }
 
 func (m *Manager) GetGroundstationAddress() string {
-	m.GroundstationAddressMutex.Lock()
-	defer m.GroundstationAddressMutex.Unlock()
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
 	return m.GroundstationAddress
 }
 
 func (m *Manager) SetGroundstationAddress(in_address string) {
-	m.GroundstationAddressMutex.Lock()
-	defer m.GroundstationAddressMutex.Unlock()
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
 	m.GroundstationAddress = in_address
 }
 
 func (m *Manager) GetOnboardAddress() string {
-	m.OnboardAddressMutex.Lock()
-	defer m.OnboardAddressMutex.Unlock()
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
 	return m.OnboardAddress
 }
 
 func (m *Manager) SetOnboardAddress(in_address string) {
-	m.OnboardAddressMutex.Lock()
-	defer m.OnboardAddressMutex.Unlock()
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
 	m.OnboardAddress = in_address
 }
 
 func (m *Manager) GetAntennaTrackerAddress() string {
-	m.AntennaTrackerAddressMutex.Lock()
-	defer m.AntennaTrackerAddressMutex.Unlock()
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
 	return m.AntennaTrackerAddress
 }
 
 func (m *Manager) SetAntennaTrackerAddress(in_address string) {
-	m.AntennaTrackerAddressMutex.Lock()
-	defer m.AntennaTrackerAddressMutex.Unlock()
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
 	m.AntennaTrackerAddress = in_address
 }
 
 func (m *Manager) Run() {
 
-	defer m.Connection.Close()
-
 	buffer := make([]byte, 1024)
 
 	var packet Communication_Packet
-
 	var decodeError error
+
+	// try to initialize until the connection is established
+
+	if !m.isInitialized() {
+		for {
+			m.Initialze()
+			if m.isInitialized() {
+				break
+			}
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	// receive loop
 
 	for {
 
 		n, _, err := m.Connection.ReadFromUDP(buffer)
 		if err != nil {
-			panic(err)
+
+			// if connection is not established, try to reinitialzie until it is established
+
+			m.Connection.Close()
+
+			for {
+				m.Initialze()
+				if m.isInitialized() {
+					break
+				}
+				time.Sleep(1 * time.Second)
+			}
 		}
 
 		receivedPacketWithMAC := buffer[:n]
@@ -163,13 +235,19 @@ func (m *Manager) Run() {
 			// Decrypt the received data
 			decryptedPacket, decryptErr := decrypt([]byte(m.Key), receivedEncryptedPacket)
 			if decryptErr != nil {
-				panic(decryptErr)
+
+				// if could not decrypt, skip the received data and wait for next
+
+				continue
 			}
 
 			// Decode
 			decodeError = json.Unmarshal(decryptedPacket, &packet)
 			if decodeError != nil {
-				panic(decodeError)
+
+				// if could not decrypt, skip the received data and wait for next
+
+				continue
 			}
 
 			// Handlers
@@ -186,7 +264,11 @@ func (m *Manager) Send2Any(in_message Communication_Message, in_address string, 
 	// Connect to the server
 	conn, err := net.Dial("udp", in_address)
 	if err != nil {
-		panic(err)
+
+		// if connection is not established, return
+
+		return
+
 	}
 	defer conn.Close()
 
@@ -194,7 +276,11 @@ func (m *Manager) Send2Any(in_message Communication_Message, in_address string, 
 	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
-		panic(err)
+
+		// if encoding fails, return
+
+		return
+
 	}
 
 	// handler
@@ -203,7 +289,11 @@ func (m *Manager) Send2Any(in_message Communication_Message, in_address string, 
 	// Encrypt the Gob-encoded message
 	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
 	if err != nil {
-		panic(err)
+
+		// if encryption fails, return
+
+		return
+
 	}
 
 	// Calculate MAC
@@ -213,7 +303,10 @@ func (m *Manager) Send2Any(in_message Communication_Message, in_address string, 
 	encryptedDataWithMAC := append(mac, encryptedData...)
 
 	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
-		panic(err)
+
+		// if sending fails, return
+
+		return
 	}
 
 }
@@ -223,7 +316,11 @@ func (m *Manager) Send2Onboard(in_message Communication_Message, in_requestACK b
 	// Connect to the server
 	conn, err := net.Dial("udp", m.GetOnboardAddress())
 	if err != nil {
-		panic(err)
+
+		// if connection is not established, return
+
+		return
+
 	}
 	defer conn.Close()
 
@@ -231,7 +328,11 @@ func (m *Manager) Send2Onboard(in_message Communication_Message, in_requestACK b
 	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
-		panic(err)
+
+		// if encoding fails, return
+
+		return
+
 	}
 
 	// handler
@@ -240,7 +341,11 @@ func (m *Manager) Send2Onboard(in_message Communication_Message, in_requestACK b
 	// Encrypt the Gob-encoded message
 	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
 	if err != nil {
-		panic(err)
+
+		// if encryption fails, return
+
+		return
+
 	}
 
 	// Calculate MAC
@@ -250,7 +355,10 @@ func (m *Manager) Send2Onboard(in_message Communication_Message, in_requestACK b
 	encryptedDataWithMAC := append(mac, encryptedData...)
 
 	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
-		panic(err)
+
+		// if sending fails, return
+
+		return
 	}
 
 }
@@ -260,7 +368,11 @@ func (m *Manager) Send2Groundstation(in_message Communication_Message, in_reques
 	// Connect to the server
 	conn, err := net.Dial("udp", m.GetGroundstationAddress())
 	if err != nil {
-		panic(err)
+
+		// if connection is not established, return
+
+		return
+
 	}
 	defer conn.Close()
 
@@ -268,7 +380,11 @@ func (m *Manager) Send2Groundstation(in_message Communication_Message, in_reques
 	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
-		panic(err)
+
+		// if encoding fails, return
+
+		return
+
 	}
 
 	// handler
@@ -277,9 +393,12 @@ func (m *Manager) Send2Groundstation(in_message Communication_Message, in_reques
 	// Encrypt the Gob-encoded message
 	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
 	if err != nil {
-		panic(err)
-	}
 
+		// if encryption fails, return
+
+		return
+
+	}
 	// Calculate MAC
 	mac := generateMAC([]byte(m.Key), encryptedData)
 
@@ -287,7 +406,10 @@ func (m *Manager) Send2Groundstation(in_message Communication_Message, in_reques
 	encryptedDataWithMAC := append(mac, encryptedData...)
 
 	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
-		panic(err)
+
+		// if sending fails, return
+
+		return
 	}
 
 }
@@ -297,7 +419,11 @@ func (m *Manager) Send2AntennaTracker(in_message Communication_Message, in_reque
 	// Connect to the server
 	conn, err := net.Dial("udp", m.GetAntennaTrackerAddress())
 	if err != nil {
-		panic(err)
+
+		// if connection is not established, return
+
+		return
+
 	}
 	defer conn.Close()
 
@@ -305,7 +431,11 @@ func (m *Manager) Send2AntennaTracker(in_message Communication_Message, in_reque
 	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
-		panic(err)
+
+		// if encoding fails, return
+
+		return
+
 	}
 
 	// handler
@@ -314,7 +444,11 @@ func (m *Manager) Send2AntennaTracker(in_message Communication_Message, in_reque
 	// Encrypt the Gob-encoded message
 	encryptedData, err := encrypt([]byte(m.Key), encodedPacket)
 	if err != nil {
-		panic(err)
+
+		// if encryption fails, return
+
+		return
+
 	}
 
 	// Calculate MAC
@@ -324,7 +458,10 @@ func (m *Manager) Send2AntennaTracker(in_message Communication_Message, in_reque
 	encryptedDataWithMAC := append(mac, encryptedData...)
 
 	if _, err := conn.Write(encryptedDataWithMAC); err != nil {
-		panic(err)
+
+		// if sending fails, return
+
+		return
 	}
 
 }
