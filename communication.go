@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -48,8 +49,6 @@ func NewCommunicationManager(in_systemid, in_key, in_groundstationAddress, in_on
 	} else {
 		m.Key = in_key
 	}
-
-	m.Initialze()
 
 	return m
 
@@ -188,7 +187,7 @@ func (m *Manager) SetAntennaTrackerAddress(in_address string) {
 
 func (m *Manager) Run() {
 
-	buffer := make([]byte, 1024)
+	buffer := make([]byte, 4096)
 
 	var packet Communication_Packet
 	var decodeError error
@@ -197,11 +196,16 @@ func (m *Manager) Run() {
 
 	if !m.isInitialized() {
 		for {
+			fmt.Printf("trying to initialize\n")
 			m.Initialze()
+
 			if m.isInitialized() {
+				fmt.Printf("trying to initialize: success\n")
 				break
+			} else {
+				fmt.Printf("trying to initialize: failure\n")
+				time.Sleep(1 * time.Second)
 			}
-			time.Sleep(1 * time.Second)
 		}
 	}
 
@@ -217,11 +221,16 @@ func (m *Manager) Run() {
 			m.Connection.Close()
 
 			for {
+				fmt.Printf("trying to initialize\n")
 				m.Initialze()
+
 				if m.isInitialized() {
+					fmt.Printf("trying to initialize: success\n")
 					break
+				} else {
+					fmt.Printf("trying to initialize: failure\n")
+					time.Sleep(1 * time.Second)
 				}
-				time.Sleep(1 * time.Second)
 			}
 		}
 
@@ -249,6 +258,8 @@ func (m *Manager) Run() {
 
 				continue
 			}
+
+			fmt.Printf("handling incoming message\n")
 
 			// Handlers
 			go m.MinimalRXHandler(packet)
