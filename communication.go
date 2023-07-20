@@ -7,7 +7,6 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/json"
-	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -35,6 +34,7 @@ type Manager struct {
 }
 
 func NewCommunicationManager(in_systemid, in_key, in_groundstationAddress, in_onboardAddress, in_antennaTrackerAddress string, in_RXhandler, in_TXHandler CommunicationHandler) *Manager {
+
 	m := &Manager{
 		SystemID:              in_systemid,
 		GroundstationAddress:  in_groundstationAddress,
@@ -196,14 +196,11 @@ func (m *Manager) Run() {
 
 	if !m.isInitialized() {
 		for {
-			fmt.Printf("trying to initialize\n")
 			m.Initialze()
 
 			if m.isInitialized() {
-				fmt.Printf("trying to initialize: success\n")
 				break
 			} else {
-				fmt.Printf("trying to initialize: failure\n")
 				time.Sleep(1 * time.Second)
 			}
 		}
@@ -221,14 +218,11 @@ func (m *Manager) Run() {
 			m.Connection.Close()
 
 			for {
-				fmt.Printf("trying to initialize\n")
 				m.Initialze()
 
 				if m.isInitialized() {
-					fmt.Printf("trying to initialize: success\n")
 					break
 				} else {
-					fmt.Printf("trying to initialize: failure\n")
 					time.Sleep(1 * time.Second)
 				}
 			}
@@ -258,8 +252,6 @@ func (m *Manager) Run() {
 
 				continue
 			}
-
-			fmt.Printf("handling incoming message\n")
 
 			// Handlers
 			go m.MinimalRXHandler(packet)
