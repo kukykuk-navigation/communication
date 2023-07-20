@@ -805,9 +805,8 @@ func (m *Communication_Message_ManualInput_Set) Encode() string {
 // control autopilot input - set
 
 type Communication_Message_AutopilotInput_Set struct {
-	Airspeed float64
 	Altitude float64
-	Heading  float64
+	Track    float64
 }
 
 func (m *Communication_Message_AutopilotInput_Set) GetType() uint {
