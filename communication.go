@@ -908,17 +908,19 @@ func (m *Communication_Message_Power_Report) Encode() string {
 // flight plan - point
 
 type Communication_FlightPlanPoint struct {
-	Label     string
-	Latitude  float64
-	Longitude float64
-	Altitude  float64
+	Label           string
+	Latitude_WGS84  float64
+	Longitude_WGS84 float64
+	Altitude_WGS84  float64
+	X_ECEF          float64
+	Y_ECEF          float64
+	Z_ECEF          float64
 }
 
-// flight plan - report
+// flight plan - report hash
 
 type Communication_Message_FlightPlan_Report struct {
-	Label  string
-	Points []Communication_FlightPlanPoint
+	Hash string
 }
 
 func (m *Communication_Message_FlightPlan_Report) GetType() uint {
@@ -932,20 +934,19 @@ func (m *Communication_Message_FlightPlan_Report) Encode() string {
 	return string(encoded)
 }
 
-// flight plan - set
+// flight plan - upload
 
-type Communication_Message_FlightPlan_Set struct {
-	Label  string
+type Communication_Message_FlightPlan_Upload struct {
 	Points []Communication_FlightPlanPoint
 }
 
-func (m *Communication_Message_FlightPlan_Set) GetType() uint {
+func (m *Communication_Message_FlightPlan_Upload) GetType() uint {
 	return 10
 }
-func (m *Communication_Message_FlightPlan_Set) GetSubType() uint {
+func (m *Communication_Message_FlightPlan_Upload) GetSubType() uint {
 	return 2
 }
-func (m *Communication_Message_FlightPlan_Set) Encode() string {
+func (m *Communication_Message_FlightPlan_Upload) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
