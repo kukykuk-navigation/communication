@@ -917,25 +917,6 @@ type Communication_FlightPlanPoint struct {
 	Z_ECEF          float64
 }
 
-// flight plan - report hash
-
-type Communication_Message_FlightPlan_Report struct {
-	Initialized bool
-	Hash        string
-	Points      []Communication_FlightPlanPoint
-}
-
-func (m *Communication_Message_FlightPlan_Report) GetType() uint {
-	return 10
-}
-func (m *Communication_Message_FlightPlan_Report) GetSubType() uint {
-	return 1
-}
-func (m *Communication_Message_FlightPlan_Report) Encode() string {
-	encoded, _ := json.Marshal(m)
-	return string(encoded)
-}
-
 // flight plan - upload
 
 type Communication_Message_FlightPlan_Upload struct {
@@ -946,9 +927,95 @@ func (m *Communication_Message_FlightPlan_Upload) GetType() uint {
 	return 10
 }
 func (m *Communication_Message_FlightPlan_Upload) GetSubType() uint {
-	return 2
+	return 1
 }
 func (m *Communication_Message_FlightPlan_Upload) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// flight plan - clear
+
+type Communication_Message_FlightPlan_Clear struct {
+}
+
+func (m *Communication_Message_FlightPlan_Clear) GetType() uint {
+	return 10
+}
+func (m *Communication_Message_FlightPlan_Clear) GetSubType() uint {
+	return 2
+}
+func (m *Communication_Message_FlightPlan_Clear) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// guidance - report
+
+type Communication_Message_Guidance_Report struct {
+	Initialized      bool
+	Hash             string
+	Points           []Communication_FlightPlanPoint
+	ActivePointIndex int
+	Autoproceed      bool
+}
+
+func (m *Communication_Message_Guidance_Report) GetType() uint {
+	return 11
+}
+func (m *Communication_Message_Guidance_Report) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_Guidance_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// guidance - next point
+
+type Communication_Message_Guidance_NextPoint struct {
+}
+
+func (m *Communication_Message_Guidance_NextPoint) GetType() uint {
+	return 11
+}
+func (m *Communication_Message_Guidance_NextPoint) GetSubType() uint {
+	return 2
+}
+func (m *Communication_Message_Guidance_NextPoint) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// guidance - previous point
+
+type Communication_Message_Guidance_PreviousPoint struct {
+}
+
+func (m *Communication_Message_Guidance_PreviousPoint) GetType() uint {
+	return 11
+}
+func (m *Communication_Message_Guidance_PreviousPoint) GetSubType() uint {
+	return 3
+}
+func (m *Communication_Message_Guidance_PreviousPoint) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// guidance - set autoproceed
+
+type Communication_Message_Guidance_setAutoproceed struct {
+	Autoproceed bool
+}
+
+func (m *Communication_Message_Guidance_setAutoproceed) GetType() uint {
+	return 11
+}
+func (m *Communication_Message_Guidance_setAutoproceed) GetSubType() uint {
+	return 4
+}
+func (m *Communication_Message_Guidance_setAutoproceed) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
@@ -961,7 +1028,7 @@ type Communication_Message_FlightController_Report struct {
 }
 
 func (m *Communication_Message_FlightController_Report) GetType() uint {
-	return 11
+	return 12
 }
 func (m *Communication_Message_FlightController_Report) GetSubType() uint {
 	return 1
@@ -1005,7 +1072,7 @@ type Communication_Message_CameraParameters_Report struct {
 }
 
 func (m *Communication_Message_CameraParameters_Report) GetType() uint {
-	return 11
+	return 14
 }
 func (m *Communication_Message_CameraParameters_Report) GetSubType() uint {
 	return 1
