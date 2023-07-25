@@ -920,7 +920,9 @@ type Communication_FlightPlanPoint struct {
 // flight plan - report hash
 
 type Communication_Message_FlightPlan_Report struct {
-	Hash string
+	Initialized bool
+	Hash        string
+	Points      []Communication_FlightPlanPoint
 }
 
 func (m *Communication_Message_FlightPlan_Report) GetType() uint {
