@@ -958,6 +958,9 @@ type Communication_Message_Guidance_Report struct {
 	Points           []Communication_FlightPlanPoint
 	ActivePointIndex int
 	Autoproceed      bool
+	LNAVTrack        float64
+	LNAVOfftrack     float64
+	LNAVDistance     float64
 }
 
 func (m *Communication_Message_Guidance_Report) GetType() uint {
