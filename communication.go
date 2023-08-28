@@ -54,7 +54,7 @@ func NewCommunicationManager(in_systemid, in_key, in_groundstationAddress, in_on
 
 }
 
-func (m *Manager) Initialze() {
+func (m *Manager) Initialize() {
 
 	m.Mutex.Lock()
 	defer m.Mutex.Unlock()
@@ -196,7 +196,7 @@ func (m *Manager) Run() {
 
 	if !m.isInitialized() {
 		for {
-			m.Initialze()
+			m.Initialize()
 
 			if m.isInitialized() {
 				break
@@ -218,7 +218,7 @@ func (m *Manager) Run() {
 			m.Connection.Close()
 
 			for {
-				m.Initialze()
+				m.Initialize()
 
 				if m.isInitialized() {
 					break
@@ -493,7 +493,7 @@ func (m *Manager) MinimalRXHandler(in_packet Communication_Packet) {
 	}
 
 	MessageACK := Communication_Message_ACK{}
-	MessageNACK := Communication_Message_ACK{}
+	MessageNACK := Communication_Message_NACK{}
 
 	// if not ACK or NACK
 
@@ -953,14 +953,22 @@ func (m *Communication_Message_FlightPlan_Clear) Encode() string {
 // guidance - report
 
 type Communication_Message_Guidance_Report struct {
-	Initialized      bool
-	Hash             string
-	Points           []Communication_FlightPlanPoint
-	ActivePointIndex int
-	Autoproceed      bool
-	LNAVTrack        float64
-	LNAVOfftrack     float64
-	LNAVDistance     float64
+	Initialized             bool
+	Hash                    string
+	Points                  []Communication_FlightPlanPoint
+	ActivePointIndex        int
+	Autoproceed             bool
+	LNAVNavigationTrack     float64
+	LNAVNavigationtDistance float64
+	LNAVDirectTrack         float64
+	LNAVDirectDistance      float64
+	LNAVApproachingTrack    float64
+	LNAVETASeconds          float64
+	LNAVError               float64
+	LNAVMode                uint
+	VNAVTargetAltitude      float64
+	VNAVError               float64
+	VNAVMode                uint
 }
 
 func (m *Communication_Message_Guidance_Report) GetType() uint {
@@ -1008,17 +1016,16 @@ func (m *Communication_Message_Guidance_PreviousPoint) Encode() string {
 
 // guidance - set autoproceed
 
-type Communication_Message_Guidance_setAutoproceed struct {
-	Autoproceed bool
+type Communication_Message_Guidance_FirstPoint struct {
 }
 
-func (m *Communication_Message_Guidance_setAutoproceed) GetType() uint {
+func (m *Communication_Message_Guidance_FirstPoint) GetType() uint {
 	return 11
 }
-func (m *Communication_Message_Guidance_setAutoproceed) GetSubType() uint {
+func (m *Communication_Message_Guidance_FirstPoint) GetSubType() uint {
 	return 4
 }
-func (m *Communication_Message_Guidance_setAutoproceed) Encode() string {
+func (m *Communication_Message_Guidance_FirstPoint) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
@@ -1069,9 +1076,20 @@ func (m *Communication_Message_OnboardSystems_Report) Encode() string {
 
 type Communication_Message_CameraParameters_Report struct {
 	ID          uint
+	HRES        float64
+	VRES        float64
+	HFOV        float64
+	VFOV        float64
 	OffsetRoll  float64
 	OffsetPitch float64
 	OffsetYaw   float64
+	Fx          float64
+	Fy          float64
+	Cx          float64
+	Cy          float64
+	K1          float64
+	K2          float64
+	K3          float64
 }
 
 func (m *Communication_Message_CameraParameters_Report) GetType() uint {
