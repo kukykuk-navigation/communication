@@ -20,6 +20,7 @@ type CommunicationHandler func(Communication_Packet)
 
 type Manager struct {
 	SystemID              string
+	SystemType            string
 	Address               *net.UDPAddr
 	Connection            *net.UDPConn
 	Initialized           bool
@@ -33,10 +34,11 @@ type Manager struct {
 	packetCounter         uint
 }
 
-func NewCommunicationManager(in_systemid, in_key, in_groundstationAddress, in_onboardAddress, in_antennaTrackerAddress string, in_RXhandler, in_TXHandler CommunicationHandler) *Manager {
+func NewCommunicationManager(in_systemID, in_systemType, in_key, in_groundstationAddress, in_onboardAddress, in_antennaTrackerAddress string, in_RXhandler, in_TXHandler CommunicationHandler) *Manager {
 
 	m := &Manager{
-		SystemID:              in_systemid,
+		SystemID:              in_systemID,
+		SystemType:            in_systemType,
 		GroundstationAddress:  in_groundstationAddress,
 		OnboardAddress:        in_onboardAddress,
 		AntennaTrackerAddress: in_antennaTrackerAddress,
@@ -63,7 +65,7 @@ func (m *Manager) Initialize() {
 	var conn *net.UDPConn
 	var addrError, connError error
 
-	switch m.SystemID {
+	switch m.SystemType {
 	case "GS":
 		addr, addrError = net.ResolveUDPAddr("udp", m.GroundstationAddress)
 		if addrError != nil {
@@ -126,6 +128,13 @@ func (m *Manager) getSystemID() string {
 	defer m.Mutex.Unlock()
 
 	return m.SystemID
+}
+
+func (m *Manager) getSystemType() string {
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
+
+	return m.SystemType
 }
 
 func (m *Manager) IncrementCounter() uint {
@@ -276,7 +285,7 @@ func (m *Manager) Send2Any(in_message Communication_Message, in_address string, 
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{SenderID: m.SystemID, SenderType: m.SystemType, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 
@@ -328,7 +337,7 @@ func (m *Manager) Send2Onboard(in_message Communication_Message, in_requestACK b
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{SenderID: m.SystemID, SenderType: m.SystemType, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 
@@ -380,7 +389,7 @@ func (m *Manager) Send2Groundstation(in_message Communication_Message, in_reques
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{SenderID: m.SystemID, SenderType: m.SystemType, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 
@@ -431,7 +440,7 @@ func (m *Manager) Send2AntennaTracker(in_message Communication_Message, in_reque
 	defer conn.Close()
 
 	// encode packet
-	var packet = Communication_Packet{SenderID: m.SystemID, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
+	var packet = Communication_Packet{SenderID: m.SystemID, SenderType: m.SystemType, Counter: m.IncrementCounter(), RequestACK: in_requestACK, Type: in_message.GetType(), SubType: in_message.GetSubType(), Message: in_message.Encode()}
 	encodedPacket, err := json.Marshal(packet)
 	if err != nil {
 
@@ -481,7 +490,7 @@ func (m *Manager) MinimalRXHandler(in_packet Communication_Packet) {
 			return
 		}
 
-		switch in_packet.SenderID {
+		switch in_packet.SenderType {
 		case "GS":
 			m.SetGroundstationAddress(MessagePing.SenderAddress)
 		case "OB":
@@ -501,7 +510,7 @@ func (m *Manager) MinimalRXHandler(in_packet Communication_Packet) {
 
 		if in_packet.RequestACK {
 
-			switch in_packet.SenderID {
+			switch in_packet.SenderType {
 			case "GS":
 				go m.Send2Groundstation(&Communication_Message_ACK{ACKId: in_packet.Counter}, false)
 			case "OB":
@@ -575,6 +584,7 @@ func verifyMAC(key, mac, data []byte) bool {
 
 type Communication_Packet struct {
 	SenderID   string
+	SenderType string
 	Counter    uint
 	RequestACK bool
 	Type       uint
@@ -713,8 +723,6 @@ func (m *Communication_Message_VisualTrackingData_Init) Encode() string {
 // visual tracking - stop
 
 type Communication_Message_VisualTrackingData_Stop struct {
-	RelX float64
-	RelY float64
 }
 
 func (m *Communication_Message_VisualTrackingData_Stop) GetType() uint {
@@ -1072,10 +1080,10 @@ func (m *Communication_Message_OnboardSystems_Report) Encode() string {
 	return string(encoded)
 }
 
-// camera - front - offsets
+// camera - offsets
 
 type Communication_Message_CameraParameters_Report struct {
-	ID          uint
+	CameraID    string
 	HRES        float64
 	VRES        float64
 	HFOV        float64
@@ -1083,13 +1091,6 @@ type Communication_Message_CameraParameters_Report struct {
 	OffsetRoll  float64
 	OffsetPitch float64
 	OffsetYaw   float64
-	Fx          float64
-	Fy          float64
-	Cx          float64
-	Cy          float64
-	K1          float64
-	K2          float64
-	K3          float64
 }
 
 func (m *Communication_Message_CameraParameters_Report) GetType() uint {
