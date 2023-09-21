@@ -1103,3 +1103,41 @@ func (m *Communication_Message_CameraParameters_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
+
+// tracker - control
+
+type Communication_Message_AntennaTracker_Control struct {
+	Azimuth   float64
+	Elevation float64
+	Control   bool
+}
+
+func (m *Communication_Message_AntennaTracker_Control) GetType() uint {
+	return 15
+}
+func (m *Communication_Message_AntennaTracker_Control) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_AntennaTracker_Control) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// tracker - report m
+
+type Communication_Message_AntennaTracker_Report struct {
+	Azimuth   float64
+	Elevation float64
+	State     uint
+}
+
+func (m *Communication_Message_AntennaTracker_Report) GetType() uint {
+	return 15
+}
+func (m *Communication_Message_AntennaTracker_Report) GetSubType() uint {
+	return 2
+}
+func (m *Communication_Message_AntennaTracker_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
