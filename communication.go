@@ -1104,12 +1104,13 @@ func (m *Communication_Message_CameraParameters_Report) Encode() string {
 	return string(encoded)
 }
 
-// tracker - control
+// antennatracker - control
 
 type Communication_Message_AntennaTracker_Control struct {
 	Azimuth   float64
 	Elevation float64
 	Control   bool
+	Timestamp int64
 }
 
 func (m *Communication_Message_AntennaTracker_Control) GetType() uint {
@@ -1123,7 +1124,7 @@ func (m *Communication_Message_AntennaTracker_Control) Encode() string {
 	return string(encoded)
 }
 
-// tracker - report m
+// antennatracker - report
 
 type Communication_Message_AntennaTracker_Report struct {
 	Azimuth   float64
