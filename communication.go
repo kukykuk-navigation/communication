@@ -973,6 +973,7 @@ type Communication_Message_Guidance_Report struct {
 	LNAVApproachingTrack    float64
 	LNAVETASeconds          float64
 	LNAVError               float64
+	LNAVDeltaError          float64
 	LNAVMode                uint
 	VNAVTargetAltitude      float64
 	VNAVError               float64
