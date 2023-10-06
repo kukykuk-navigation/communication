@@ -965,7 +965,6 @@ type Communication_Message_Guidance_Report struct {
 	Hash                             string
 	Points                           []Communication_FlightPlanPoint
 	ActivePointIndex                 int
-	Autoproceed                      bool
 	LNAVNavigationTrack              float64
 	LNAVNavigationtDistance          float64
 	LNAVDirectTrack                  float64
