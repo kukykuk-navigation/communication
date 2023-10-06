@@ -961,10 +961,14 @@ func (m *Communication_Message_FlightPlan_Clear) Encode() string {
 // guidance - report
 
 type Communication_Message_Guidance_Report struct {
-	Initialized                      bool
-	Hash                             string
-	Points                           []Communication_FlightPlanPoint
-	ActivePointIndex                 int
+	GuidanceMode                     uint
+	FlightPlanInitialized            bool
+	FlightPlanHash                   string
+	FlightPlanPoints                 []Communication_FlightPlanPoint
+	FlightPlanActivePointIndex       int
+	AutolandInitialized              bool
+	AutolandApproachPoints           []Communication_FlightPlanPoint
+	AutolandActivePointIndex         int
 	LNAVNavigationTrack              float64
 	LNAVNavigationtDistance          float64
 	LNAVDirectTrack                  float64
@@ -982,8 +986,6 @@ type Communication_Message_Guidance_Report struct {
 	VNAVNavigationSlopeAltitude      float64
 	VNAVNavigationSlopeAltitudeError float64
 	VNAVMode                         uint
-	AutolandInitialized              bool
-	AutolandApproachPoints           []Communication_FlightPlanPoint
 }
 
 func (m *Communication_Message_Guidance_Report) GetType() uint {
