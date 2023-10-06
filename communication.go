@@ -983,6 +983,8 @@ type Communication_Message_Guidance_Report struct {
 	VNAVNavigationSlopeAltitude      float64
 	VNAVNavigationSlopeAltitudeError float64
 	VNAVMode                         uint
+	AutolandRunwaySet                bool
+	AutolandApproachPoints           []Communication_FlightPlanPoint
 }
 
 func (m *Communication_Message_Guidance_Report) GetType() uint {
@@ -1145,6 +1147,27 @@ func (m *Communication_Message_AntennaTracker_Report) GetSubType() uint {
 	return 2
 }
 func (m *Communication_Message_AntennaTracker_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// control autopilot input - set
+
+type Communication_Message_AutolandRunway_Set struct {
+	RWYStartLatitude  float64
+	RWYStartLongitude float64
+	RWYEndLatitude    float64
+	RWYEndLongitude   float64
+	RWYAltitude       float64
+}
+
+func (m *Communication_Message_AutolandRunway_Set) GetType() uint {
+	return 16
+}
+func (m *Communication_Message_AutolandRunway_Set) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_AutolandRunway_Set) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
