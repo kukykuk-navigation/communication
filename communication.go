@@ -982,7 +982,7 @@ type Communication_Message_Guidance_Report struct {
 	VNAVNavigationSlopeAltitude      float64
 	VNAVNavigationSlopeAltitudeError float64
 	VNAVMode                         uint
-	AutolandRunwaySet                bool
+	AutolandInitialized              bool
 	AutolandApproachPoints           []Communication_FlightPlanPoint
 }
 
