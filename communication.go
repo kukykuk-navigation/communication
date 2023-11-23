@@ -27,7 +27,9 @@ type Manager struct {
 	RXHandler             func(Communication_Packet)
 	TXHandler             func(Communication_Packet)
 	Key                   string
+	GroundstationID       string
 	GroundstationAddress  string
+	OnboardID             string
 	OnboardAddress        string
 	AntennaTrackerAddress string
 	packetCounter         uint
@@ -149,6 +151,18 @@ func (m *Manager) SetKey(in_key string) {
 	m.Key = in_key
 }
 
+func (m *Manager) GetGroundstationID() string {
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
+	return m.GroundstationID
+}
+
+func (m *Manager) SetGroundstationID(in_ID string) {
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
+	m.GroundstationID = in_ID
+}
+
 func (m *Manager) GetGroundstationAddress() string {
 	m.Mutex.Lock()
 	defer m.Mutex.Unlock()
@@ -159,6 +173,18 @@ func (m *Manager) SetGroundstationAddress(in_address string) {
 	m.Mutex.Lock()
 	defer m.Mutex.Unlock()
 	m.GroundstationAddress = in_address
+}
+
+func (m *Manager) GetOnboardID() string {
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
+	return m.OnboardID
+}
+
+func (m *Manager) SetOnboardID(in_ID string) {
+	m.Mutex.Lock()
+	defer m.Mutex.Unlock()
+	m.OnboardID = in_ID
 }
 
 func (m *Manager) GetOnboardAddress() string {
