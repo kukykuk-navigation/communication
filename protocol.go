@@ -127,8 +127,6 @@ func (m *Communication_Message_VisualTrackingData_Init) Encode() string {
 // visual tracking - stop
 
 type Communication_Message_VisualTrackingData_Stop struct {
-	RelX float64
-	RelY float64
 }
 
 func (m *Communication_Message_VisualTrackingData_Stop) GetType() uint {
@@ -367,22 +365,31 @@ func (m *Communication_Message_FlightPlan_Clear) Encode() string {
 // guidance - report
 
 type Communication_Message_Guidance_Report struct {
-	Initialized             bool
-	Hash                    string
-	Points                  []Communication_FlightPlanPoint
-	ActivePointIndex        int
-	Autoproceed             bool
-	LNAVNavigationTrack     float64
-	LNAVNavigationtDistance float64
-	LNAVDirectTrack         float64
-	LNAVDirectDistance      float64
-	LNAVApproachingTrack    float64
-	LNAVETASeconds          float64
-	LNAVError               float64
-	LNAVMode                uint
-	VNAVTargetAltitude      float64
-	VNAVError               float64
-	VNAVMode                uint
+	GuidanceMode                     uint
+	FlightPlanInitialized            bool
+	FlightPlanHash                   string
+	FlightPlanPoints                 []Communication_FlightPlanPoint
+	FlightPlanActivePointIndex       int
+	AutolandInitialized              bool
+	AutolandApproachPoints           []Communication_FlightPlanPoint
+	AutolandActivePointIndex         int
+	LNAVNavigationTrack              float64
+	LNAVNavigationtDistance          float64
+	LNAVDirectTrack                  float64
+	LNAVDirectDistance               float64
+	LNAVApproachingTrack             float64
+	LNAVETASeconds                   float64
+	LNAVError                        float64
+	LNAVMode                         uint
+	VNAVTargetAltitude               float64
+	VNAVAltitudeError                float64
+	VNAVDirectSlopeAngle             float64
+	VNAVDirectVerticalSpeed          float64
+	VNAVNavigationSlopAvailable      bool
+	VNAVNavigationSlopeAngle         float64
+	VNAVNavigationSlopeAltitude      float64
+	VNAVNavigationSlopeAltitudeError float64
+	VNAVMode                         uint
 }
 
 func (m *Communication_Message_Guidance_Report) GetType() uint {
@@ -486,10 +493,10 @@ func (m *Communication_Message_OnboardSystems_Report) Encode() string {
 	return string(encoded)
 }
 
-// camera - front - offsets
+// camera - offsets
 
 type Communication_Message_CameraParameters_Report struct {
-	ID          uint
+	CameraID    string
 	HRES        float64
 	VRES        float64
 	HFOV        float64
@@ -497,13 +504,6 @@ type Communication_Message_CameraParameters_Report struct {
 	OffsetRoll  float64
 	OffsetPitch float64
 	OffsetYaw   float64
-	Fx          float64
-	Fy          float64
-	Cx          float64
-	Cy          float64
-	K1          float64
-	K2          float64
-	K3          float64
 }
 
 func (m *Communication_Message_CameraParameters_Report) GetType() uint {
@@ -513,6 +513,66 @@ func (m *Communication_Message_CameraParameters_Report) GetSubType() uint {
 	return 1
 }
 func (m *Communication_Message_CameraParameters_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// antennatracker - control
+
+type Communication_Message_AntennaTracker_Control struct {
+	Azimuth   float64
+	Elevation float64
+	Control   bool
+	Timestamp int64
+}
+
+func (m *Communication_Message_AntennaTracker_Control) GetType() uint {
+	return 15
+}
+func (m *Communication_Message_AntennaTracker_Control) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_AntennaTracker_Control) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// antennatracker - report
+
+type Communication_Message_AntennaTracker_Report struct {
+	Azimuth   float64
+	Elevation float64
+	State     uint
+}
+
+func (m *Communication_Message_AntennaTracker_Report) GetType() uint {
+	return 15
+}
+func (m *Communication_Message_AntennaTracker_Report) GetSubType() uint {
+	return 2
+}
+func (m *Communication_Message_AntennaTracker_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// control autopilot input - set
+
+type Communication_Message_AutolandRunway_Set struct {
+	RWYStartLatitude  float64
+	RWYStartLongitude float64
+	RWYEndLatitude    float64
+	RWYEndLongitude   float64
+	RWYAltitude       float64
+}
+
+func (m *Communication_Message_AutolandRunway_Set) GetType() uint {
+	return 16
+}
+func (m *Communication_Message_AutolandRunway_Set) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_AutolandRunway_Set) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
