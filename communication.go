@@ -122,28 +122,28 @@ func (m *Manager) Initialize() {
 
 }
 
-func (m *Manager) isInitialized() bool {
+func (m *Manager) IsInitialized() bool {
 	m.Mutex.Lock()
 	defer m.Mutex.Unlock()
 
 	return m.Initialized
 }
 
-func (m *Manager) getCounter() uint {
+func (m *Manager) GetCounter() uint {
 	m.Mutex.Lock()
 	defer m.Mutex.Unlock()
 
 	return m.packetCounter
 }
 
-func (m *Manager) getSystemID() string {
+func (m *Manager) GetSystemID() string {
 	m.Mutex.Lock()
 	defer m.Mutex.Unlock()
 
 	return m.SystemID
 }
 
-func (m *Manager) getSystemType() string {
+func (m *Manager) GetSystemType() string {
 	m.Mutex.Lock()
 	defer m.Mutex.Unlock()
 
@@ -315,11 +315,11 @@ func (m *Manager) Run() {
 
 	// try to initialize until the connection is established
 
-	if !m.isInitialized() {
+	if !m.IsInitialized() {
 		for {
 			m.Initialize()
 
-			if m.isInitialized() {
+			if m.IsInitialized() {
 				break
 			} else {
 				time.Sleep(1 * time.Second)
@@ -341,7 +341,7 @@ func (m *Manager) Run() {
 			for {
 				m.Initialize()
 
-				if m.isInitialized() {
+				if m.IsInitialized() {
 					break
 				} else {
 					time.Sleep(1 * time.Second)
