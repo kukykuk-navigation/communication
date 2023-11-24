@@ -50,6 +50,15 @@ func NewCommunicationManager(in_systemID, in_systemType, in_key, in_groundstatio
 		TXHandler:             in_TXHandler,
 	}
 
+	switch m.SystemType {
+	case "GS":
+		m.SetGroundstationID(in_systemID)
+	case "OB":
+		m.SetOnboardID(in_systemID)
+	case "AT":
+		m.SetAntennaTrackerID(in_systemID)
+	}
+
 	if in_key == "" {
 		m.Key = COMMUNICATION_DEFAULT_KEY
 	} else {
