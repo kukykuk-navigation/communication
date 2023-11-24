@@ -142,118 +142,139 @@ func (m *Communication_Message_VisualTrackingData_Stop) Encode() string {
 
 // control mode - report
 
-type Communication_Message_Control_Report struct {
+type Communication_Message_Control_Mode_Report struct {
 	ControlMode         uint
 	ControlManualMode   uint
 	ManualInputValid    bool
 	AutopilotInputValid bool
 }
 
-func (m *Communication_Message_Control_Report) GetType() uint {
+func (m *Communication_Message_Control_Mode_Report) GetType() uint {
 	return 5
 }
-func (m *Communication_Message_Control_Report) GetSubType() uint {
+func (m *Communication_Message_Control_Mode_Report) GetSubType() uint {
 	return 1
 }
-func (m *Communication_Message_Control_Report) Encode() string {
+func (m *Communication_Message_Control_Mode_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
 
 // control mode - set
 
-type Communication_Message_ControlMode_Set struct {
+type Communication_Message_Control_Mode_Set struct {
 	ControlMode uint
 }
 
-func (m *Communication_Message_ControlMode_Set) GetType() uint {
+func (m *Communication_Message_Control_Mode_Set) GetType() uint {
 	return 5
 }
-func (m *Communication_Message_ControlMode_Set) GetSubType() uint {
+func (m *Communication_Message_Control_Mode_Set) GetSubType() uint {
 	return 2
 }
-func (m *Communication_Message_ControlMode_Set) Encode() string {
+func (m *Communication_Message_Control_Mode_Set) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
 
 // control manual mode - set
 
-type Communication_Message_ControlManualMode_Set struct {
+type Communication_Message_Control_ManualMode_Set struct {
 	ControlManualMode uint
 }
 
-func (m *Communication_Message_ControlManualMode_Set) GetType() uint {
+func (m *Communication_Message_Control_ManualMode_Set) GetType() uint {
 	return 5
 }
-func (m *Communication_Message_ControlManualMode_Set) GetSubType() uint {
+func (m *Communication_Message_Control_ManualMode_Set) GetSubType() uint {
 	return 3
 }
-func (m *Communication_Message_ControlManualMode_Set) Encode() string {
+func (m *Communication_Message_Control_ManualMode_Set) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
 
 // control manual input - set
 
-type Communication_Message_ManualInput_Set struct {
+type Communication_Message_Control_ManualInput_Set struct {
 	RollAxis  float64
 	PitchAxis float64
 	YawAxis   float64
 	PowerAxis float64
 }
 
-func (m *Communication_Message_ManualInput_Set) GetType() uint {
+func (m *Communication_Message_Control_ManualInput_Set) GetType() uint {
 	return 5
 }
-func (m *Communication_Message_ManualInput_Set) GetSubType() uint {
+func (m *Communication_Message_Control_ManualInput_Set) GetSubType() uint {
 	return 4
 }
-func (m *Communication_Message_ManualInput_Set) Encode() string {
+func (m *Communication_Message_Control_ManualInput_Set) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
 
 // control autopilot input - set
 
-type Communication_Message_AutopilotInput_Set struct {
+type Communication_Message_Control_AutopilotInput_Set struct {
 	Altitude float64
 	Track    float64
 }
 
-func (m *Communication_Message_AutopilotInput_Set) GetType() uint {
+func (m *Communication_Message_Control_AutopilotInput_Set) GetType() uint {
 	return 5
 }
-func (m *Communication_Message_AutopilotInput_Set) GetSubType() uint {
+func (m *Communication_Message_Control_AutopilotInput_Set) GetSubType() uint {
 	return 5
 }
-func (m *Communication_Message_AutopilotInput_Set) Encode() string {
+func (m *Communication_Message_Control_AutopilotInput_Set) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// control output - report
+
+type Communication_Message_Control_Output_Report struct {
+	Pitch     float64
+	PitchRate float64
+	Roll      float64
+	RollRate  float64
+	Power     float64
+}
+
+func (m *Communication_Message_Control_Output_Report) GetType() uint {
+	return 5
+}
+func (m *Communication_Message_Control_Output_Report) GetSubType() uint {
+	return 6
+}
+func (m *Communication_Message_Control_Output_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
 
 // target estimate - report
 
-type Communication_Message_TargetEstimate_Report struct {
+type Communication_Message_Target_Estimate_Report struct {
 	Roll  float64
 	Pitch float64
 	Yaw   float64
 }
 
-func (m *Communication_Message_TargetEstimate_Report) GetType() uint {
+func (m *Communication_Message_Target_Estimate_Report) GetType() uint {
 	return 6
 }
-func (m *Communication_Message_TargetEstimate_Report) GetSubType() uint {
+func (m *Communication_Message_Target_Estimate_Report) GetSubType() uint {
 	return 1
 }
-func (m *Communication_Message_TargetEstimate_Report) Encode() string {
+func (m *Communication_Message_Target_Estimate_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
 
 // GNSS performance - report
 
-type Communication_Message_GNSSPerformance_Report struct {
+type Communication_Message_GNSS_Performance_Report struct {
 	FixType           uint
 	Latitude          float64
 	Longitude         float64
@@ -270,32 +291,13 @@ type Communication_Message_GNSSPerformance_Report struct {
 	SatellitesVisible uint
 }
 
-func (m *Communication_Message_GNSSPerformance_Report) GetType() uint {
+func (m *Communication_Message_GNSS_Performance_Report) GetType() uint {
 	return 7
 }
-func (m *Communication_Message_GNSSPerformance_Report) GetSubType() uint {
+func (m *Communication_Message_GNSS_Performance_Report) GetSubType() uint {
 	return 1
 }
-func (m *Communication_Message_GNSSPerformance_Report) Encode() string {
-	encoded, _ := json.Marshal(m)
-	return string(encoded)
-}
-
-// guidance state - report
-
-type Communication_Message_GuidanceState_Report struct {
-	GuidanceMode           string
-	GuidanceDistanceToNext float64
-	GuidanceTrackToNext    float64
-}
-
-func (m *Communication_Message_GuidanceState_Report) GetType() uint {
-	return 8
-}
-func (m *Communication_Message_GuidanceState_Report) GetSubType() uint {
-	return 1
-}
-func (m *Communication_Message_GuidanceState_Report) Encode() string {
+func (m *Communication_Message_GNSS_Performance_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
@@ -307,12 +309,29 @@ type Communication_Message_Power_Report struct {
 }
 
 func (m *Communication_Message_Power_Report) GetType() uint {
-	return 9
+	return 8
 }
 func (m *Communication_Message_Power_Report) GetSubType() uint {
 	return 1
 }
 func (m *Communication_Message_Power_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// home - set
+
+type Communication_Message_Home_Set struct {
+	HomePoint Communication_FlightPlanPoint
+}
+
+func (m *Communication_Message_Home_Set) GetType() uint {
+	return 9
+}
+func (m *Communication_Message_Home_Set) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_Home_Set) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
@@ -373,6 +392,8 @@ type Communication_Message_Guidance_Report struct {
 	AutolandInitialized              bool
 	AutolandApproachPoints           []Communication_FlightPlanPoint
 	AutolandActivePointIndex         int
+	HomeInitialized                  bool
+	HomePoint                        Communication_FlightPlanPoint
 	LNAVNavigationTrack              float64
 	LNAVNavigationtDistance          float64
 	LNAVDirectTrack                  float64
@@ -451,6 +472,22 @@ func (m *Communication_Message_Guidance_FirstPoint) Encode() string {
 	return string(encoded)
 }
 
+// guidance - go home
+
+type Communication_Message_Guidance_GoHome struct {
+}
+
+func (m *Communication_Message_Guidance_GoHome) GetType() uint {
+	return 12
+}
+func (m *Communication_Message_Guidance_GoHome) GetSubType() uint {
+	return 5
+}
+func (m *Communication_Message_Guidance_GoHome) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
 // flight controller - report
 
 type Communication_Message_FlightController_Report struct {
@@ -496,7 +533,8 @@ func (m *Communication_Message_OnboardSystems_Report) Encode() string {
 // camera - offsets
 
 type Communication_Message_CameraParameters_Report struct {
-	CameraID    string
+	ID          string
+	Source      string
 	HRES        float64
 	VRES        float64
 	HFOV        float64
