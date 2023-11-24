@@ -595,12 +595,15 @@ func (m *Manager) MinimalRXHandler(in_packet Communication_Packet) {
 
 		switch in_packet.SenderType {
 		case "GS":
+			m.SetGroundstationID(in_packet.SenderID)
 			m.SetGroundstationAddress(MessagePing.SenderAddress)
 			m.UpdateGroundstationTimestamp()
 		case "OB":
+			m.SetOnboardID(in_packet.SenderID)
 			m.SetOnboardAddress(MessagePing.SenderAddress)
 			m.UpdateOnboardTimestamp()
 		case "AT":
+			m.SetAntennaTrackerID(in_packet.SenderID)
 			m.SetAntennaTrackerAddress(MessagePing.SenderAddress)
 			m.UpdateAntennaTrackerTimestamp()
 		default:
