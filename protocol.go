@@ -619,10 +619,11 @@ func (m *Communication_Message_AutolandRunway_Set) Encode() string {
 // model - report
 
 type Communication_Message_Model_Report struct {
-	StallSpeed       float64
-	LandingSpeed     float64
-	CruiseSpeed      float64
-	NeverExceedSpeed float64
+	ID           string
+	MinimumSpeed float64
+	LandingSpeed float64
+	CruiseSpeed  float64
+	MaximumSpeed float64
 }
 
 func (m *Communication_Message_Model_Report) GetType() uint {
@@ -632,6 +633,38 @@ func (m *Communication_Message_Model_Report) GetSubType() uint {
 	return 1
 }
 func (m *Communication_Message_Model_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// model - increase cruise speed
+
+type Communication_Message_Model_IncreaseCruiseSpeed struct {
+}
+
+func (m *Communication_Message_Model_IncreaseCruiseSpeed) GetType() uint {
+	return 17
+}
+func (m *Communication_Message_Model_IncreaseCruiseSpeed) GetSubType() uint {
+	return 2
+}
+func (m *Communication_Message_Model_IncreaseCruiseSpeed) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// model - decrease cruise speed
+
+type Communication_Message_Model_DecreaseCruiseSpeed struct {
+}
+
+func (m *Communication_Message_Model_DecreaseCruiseSpeed) GetType() uint {
+	return 17
+}
+func (m *Communication_Message_Model_DecreaseCruiseSpeed) GetSubType() uint {
+	return 3
+}
+func (m *Communication_Message_Model_DecreaseCruiseSpeed) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
