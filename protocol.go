@@ -602,6 +602,7 @@ type Communication_Message_AutolandRunway_Set struct {
 	RWYEndLatitude    float64
 	RWYEndLongitude   float64
 	RWYAltitude       float64
+	RWYOption         float64
 }
 
 func (m *Communication_Message_AutolandRunway_Set) GetType() uint {
@@ -611,6 +612,26 @@ func (m *Communication_Message_AutolandRunway_Set) GetSubType() uint {
 	return 1
 }
 func (m *Communication_Message_AutolandRunway_Set) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// model - report
+
+type Communication_Message_Model_Report struct {
+	StallSpeed       float64
+	LandingSpeed     float64
+	CruiseSpeed      float64
+	NeverExceedSpeed float64
+}
+
+func (m *Communication_Message_Model_Report) GetType() uint {
+	return 17
+}
+func (m *Communication_Message_Model_Report) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_Model_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
