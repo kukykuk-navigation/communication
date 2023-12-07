@@ -94,9 +94,9 @@ type Communication_Message_NavigationData_Report struct {
 	Pitch      float64
 	RollRate   float64
 	PitchRate  float64
-	LocalPath  []Communication_NavigationPointLocal
-	GlobalPath []Communication_NavigationPointGlobal
 	GNSSPath   []Communication_NavigationPointGlobal
+	GlobalPath []Communication_NavigationPointGlobal
+	LocalPath  []Communication_NavigationPointLocal
 }
 
 func (m *Communication_Message_NavigationData_Report) GetType() uint {
