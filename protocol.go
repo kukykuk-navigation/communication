@@ -65,7 +65,7 @@ type Communication_NEDPoint struct {
 }
 
 type Communication_NavigationPointLocal struct {
-	timestamp int64
+	Timestamp int64
 	NED       Communication_NEDPoint
 }
 
@@ -76,7 +76,7 @@ type Communication_WGS84Point struct {
 }
 
 type Communication_NavigationPointGlobal struct {
-	timestamp int64
+	Timestamp int64
 	WGS84     Communication_WGS84Point
 }
 
