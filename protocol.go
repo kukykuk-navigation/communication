@@ -153,7 +153,7 @@ func (m *Communication_Message_NavigationLocalPathEstimation_Report) Encode() st
 }
 
 type Communication_Message_Navigation_ToggleGNSSNavigation struct {
-	state bool
+	State bool
 }
 
 func (m *Communication_Message_Navigation_ToggleGNSSNavigation) GetType() uint {
