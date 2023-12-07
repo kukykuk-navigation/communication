@@ -108,8 +108,7 @@ func (m *Communication_Message_NavigationData_Report) Encode() string {
 }
 
 type Communication_Message_NavigationGNSSPath_Report struct {
-	GNSSPath   []Communication_NavigationPointGlobal
-	GlobalPath []Communication_NavigationPointGlobal
+	GNSSPath []Communication_NavigationPointGlobal
 }
 
 func (m *Communication_Message_NavigationGNSSPath_Report) GetType() uint {
