@@ -576,6 +576,7 @@ func (m *Communication_Message_FlightController_Report) Encode() string {
 
 type Communication_Message_OnboardSystems_Report struct {
 	ControlLoop       float64
+	NavigationLoop    float64
 	TransmitToFC      float64
 	ReceiveFromFC     float64
 	FrontCameraVideo  float64
