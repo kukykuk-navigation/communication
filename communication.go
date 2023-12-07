@@ -308,7 +308,7 @@ func (m *Manager) AntennaTrackerConnected() bool {
 
 func (m *Manager) Run() {
 
-	buffer := make([]byte, 4096)
+	buffer := make([]byte, 65344)
 
 	var packet Communication_Packet
 	var decodeError error

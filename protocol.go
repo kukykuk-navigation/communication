@@ -58,20 +58,44 @@ func (m *Communication_Message_NACK) Encode() string {
 
 // navigation data - report
 
-type Communication_Message_NavigationData_Report struct {
+type Communication_NEDPoint struct {
+	N float64
+	E float64
+	D float64
+}
+
+type Communication_NavigationPointLocal struct {
+	timestamp int64
+	NED       Communication_NEDPoint
+}
+
+type Communication_WGS84Point struct {
 	Latitude  float64
 	Longitude float64
 	Altitude  float64
-	VN        float64
-	VE        float64
-	VD        float64
-	IAS       float64
-	Heading   float64
-	Track     float64
-	Roll      float64
-	Pitch     float64
-	RollRate  float64
-	PitchRate float64
+}
+
+type Communication_NavigationPointGlobal struct {
+	timestamp int64
+	WGS84     Communication_WGS84Point
+}
+
+type Communication_Message_NavigationData_Report struct {
+	Latitude   float64
+	Longitude  float64
+	Altitude   float64
+	VN         float64
+	VE         float64
+	VD         float64
+	IAS        float64
+	Heading    float64
+	Track      float64
+	Roll       float64
+	Pitch      float64
+	RollRate   float64
+	PitchRate  float64
+	LocalPath  []Communication_NavigationPointLocal
+	GlobalPath []Communication_NavigationPointGlobal
 }
 
 func (m *Communication_Message_NavigationData_Report) GetType() uint {
@@ -384,7 +408,6 @@ func (m *Communication_Message_FlightPlan_Clear) Encode() string {
 // guidance - report
 
 type Communication_Message_Guidance_Report struct {
-	GuidanceMode                     uint
 	FlightPlanInitialized            bool
 	FlightPlanHash                   string
 	FlightPlanPoints                 []Communication_FlightPlanPoint
