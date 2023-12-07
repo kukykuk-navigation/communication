@@ -110,6 +110,23 @@ func (m *Communication_Message_NavigationData_Report) Encode() string {
 	return string(encoded)
 }
 
+type Communication_Message_NavigationPath_Report struct {
+	GNSSPath   []Communication_NavigationPointGlobal
+	GlobalPath []Communication_NavigationPointGlobal
+	LocalPath  []Communication_NavigationPointLocal
+}
+
+func (m *Communication_Message_NavigationPath_Report) GetType() uint {
+	return 3
+}
+func (m *Communication_Message_NavigationPath_Report) GetSubType() uint {
+	return 2
+}
+func (m *Communication_Message_NavigationPath_Report) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
 // visual tracking - report
 
 type Communication_Message_VisualTrackingData_Report struct {
