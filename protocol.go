@@ -152,6 +152,21 @@ func (m *Communication_Message_NavigationLocalPathEstimation_Report) Encode() st
 	return string(encoded)
 }
 
+type Communication_Message_Navigation_ToggleGNSSNavigation struct {
+	state bool
+}
+
+func (m *Communication_Message_Navigation_ToggleGNSSNavigation) GetType() uint {
+	return 3
+}
+func (m *Communication_Message_Navigation_ToggleGNSSNavigation) GetSubType() uint {
+	return 5
+}
+func (m *Communication_Message_Navigation_ToggleGNSSNavigation) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
 // visual tracking - report
 
 type Communication_Message_VisualTrackingData_Report struct {
