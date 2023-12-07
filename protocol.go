@@ -650,7 +650,7 @@ type Communication_Message_Model_Report struct {
 }
 
 func (m *Communication_Message_Model_Report) GetType() uint {
-	return 17
+	return 18
 }
 func (m *Communication_Message_Model_Report) GetSubType() uint {
 	return 1
@@ -666,7 +666,7 @@ type Communication_Message_Model_IncreaseCruiseSpeed struct {
 }
 
 func (m *Communication_Message_Model_IncreaseCruiseSpeed) GetType() uint {
-	return 17
+	return 18
 }
 func (m *Communication_Message_Model_IncreaseCruiseSpeed) GetSubType() uint {
 	return 2
@@ -682,7 +682,7 @@ type Communication_Message_Model_DecreaseCruiseSpeed struct {
 }
 
 func (m *Communication_Message_Model_DecreaseCruiseSpeed) GetType() uint {
-	return 17
+	return 18
 }
 func (m *Communication_Message_Model_DecreaseCruiseSpeed) GetSubType() uint {
 	return 3
