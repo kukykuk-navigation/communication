@@ -757,8 +757,8 @@ func (m *Communication_Message_Model_DecreaseCruiseSpeed) Encode() string {
 // optical flow - front camera
 
 type Communication_Message_OpticalFlow_FrontCameraReport struct {
-	Horizontal float64
-	Vertical   float64
+	HorizontalFlow float64
+	VerticalFlow   float64
 }
 
 func (m *Communication_Message_OpticalFlow_FrontCameraReport) GetType() uint {
@@ -775,8 +775,8 @@ func (m *Communication_Message_OpticalFlow_FrontCameraReport) Encode() string {
 // optical flow - bottom camera
 
 type Communication_Message_OpticalFlow_BottomCameraReport struct {
-	Horizontal float64
-	Vertical   float64
+	HorizontalFlow float64
+	VerticalFlow   float64
 }
 
 func (m *Communication_Message_OpticalFlow_BottomCameraReport) GetType() uint {
