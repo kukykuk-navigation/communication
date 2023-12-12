@@ -754,22 +754,38 @@ func (m *Communication_Message_Model_DecreaseCruiseSpeed) Encode() string {
 	return string(encoded)
 }
 
-// model - decrease cruise speed
+// optical flow - front camera
 
-type Communication_Message_OpticalFlow_GetFlow struct {
-	FrontCameraHorizontal  float64
-	FrontCameraVertical    float64
-	BottomCameraHorizontal float64
-	BottomCameraVerical    float64
+type Communication_Message_OpticalFlow_FrontCameraReport struct {
+	Horizontal float64
+	Vertical   float64
 }
 
-func (m *Communication_Message_OpticalFlow_GetFlow) GetType() uint {
+func (m *Communication_Message_OpticalFlow_FrontCameraReport) GetType() uint {
 	return 19
 }
-func (m *Communication_Message_OpticalFlow_GetFlow) GetSubType() uint {
+func (m *Communication_Message_OpticalFlow_FrontCameraReport) GetSubType() uint {
 	return 1
 }
-func (m *Communication_Message_OpticalFlow_GetFlow) Encode() string {
+func (m *Communication_Message_OpticalFlow_FrontCameraReport) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// optical flow - bottom camera
+
+type Communication_Message_OpticalFlow_BottomCameraReport struct {
+	Horizontal float64
+	Vertical   float64
+}
+
+func (m *Communication_Message_OpticalFlow_BottomCameraReport) GetType() uint {
+	return 19
+}
+func (m *Communication_Message_OpticalFlow_BottomCameraReport) GetSubType() uint {
+	return 2
+}
+func (m *Communication_Message_OpticalFlow_BottomCameraReport) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
