@@ -591,15 +591,17 @@ func (m *Communication_Message_FlightController_Report) Encode() string {
 // onboard systems - report
 
 type Communication_Message_OnboardSystems_Report struct {
-	Control           float64
-	Navigation        float64
-	TransmitToFC      float64
-	ReceiveFromFC     float64
-	FrontCameraVideo  float64
-	BottomCameraVideo float64
-	VisualTracking    float64
-	ManualInput       float64
-	AutopilotInput    float64
+	Control                      float64
+	Navigation                   float64
+	TransmitToFC                 float64
+	ReceiveFromFC                float64
+	FrontCameraVideo             float64
+	BottomCameraVideo            float64
+	VisualTracking               float64
+	ManualInput                  float64
+	AutopilotInput               float64
+	VisualNavigationFrontCamera  float64
+	VisualNavigationBottomCamera float64
 }
 
 func (m *Communication_Message_OnboardSystems_Report) GetType() uint {
@@ -748,6 +750,26 @@ func (m *Communication_Message_Model_DecreaseCruiseSpeed) GetSubType() uint {
 	return 3
 }
 func (m *Communication_Message_Model_DecreaseCruiseSpeed) Encode() string {
+	encoded, _ := json.Marshal(m)
+	return string(encoded)
+}
+
+// model - decrease cruise speed
+
+type Communication_Message_OpticalFlow_GetFlow struct {
+	FrontCameraHorizontal  float64
+	FrontCameraVertical    float64
+	BottomCameraHorizontal float64
+	BottomCameraVerical    float64
+}
+
+func (m *Communication_Message_OpticalFlow_GetFlow) GetType() uint {
+	return 19
+}
+func (m *Communication_Message_OpticalFlow_GetFlow) GetSubType() uint {
+	return 1
+}
+func (m *Communication_Message_OpticalFlow_GetFlow) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
