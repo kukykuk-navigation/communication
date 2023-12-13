@@ -123,32 +123,32 @@ func (m *Communication_Message_NavigationGNSSPath_Report) Encode() string {
 	return string(encoded)
 }
 
-type Communication_Message_NavigationGlobalPathEstimation_Report struct {
-	GlobalPathEstimation []Communication_NavigationPointGlobal
+type Communication_Message_NavigationInertialPath_Report struct {
+	InertialPath []Communication_NavigationPointGlobal
 }
 
-func (m *Communication_Message_NavigationGlobalPathEstimation_Report) GetType() uint {
+func (m *Communication_Message_NavigationInertialPath_Report) GetType() uint {
 	return 3
 }
-func (m *Communication_Message_NavigationGlobalPathEstimation_Report) GetSubType() uint {
+func (m *Communication_Message_NavigationInertialPath_Report) GetSubType() uint {
 	return 3
 }
-func (m *Communication_Message_NavigationGlobalPathEstimation_Report) Encode() string {
+func (m *Communication_Message_NavigationInertialPath_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
 
-type Communication_Message_NavigationLocalPathEstimation_Report struct {
-	LocalPathEstimation []Communication_NavigationPointLocal
+type Communication_Message_NavigationInertialVisual_Report struct {
+	VisualPath []Communication_NavigationPointLocal
 }
 
-func (m *Communication_Message_NavigationLocalPathEstimation_Report) GetType() uint {
+func (m *Communication_Message_NavigationInertialVisual_Report) GetType() uint {
 	return 3
 }
-func (m *Communication_Message_NavigationLocalPathEstimation_Report) GetSubType() uint {
+func (m *Communication_Message_NavigationInertialVisual_Report) GetSubType() uint {
 	return 4
 }
-func (m *Communication_Message_NavigationLocalPathEstimation_Report) Encode() string {
+func (m *Communication_Message_NavigationInertialVisual_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
