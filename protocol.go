@@ -138,17 +138,17 @@ func (m *Communication_Message_NavigationInertialPath_Report) Encode() string {
 	return string(encoded)
 }
 
-type Communication_Message_NavigationVisual_Report struct {
+type Communication_Message_NavigationVisualPath_Report struct {
 	VisualPath []Communication_NavigationPointGlobal
 }
 
-func (m *Communication_Message_NavigationVisual_Report) GetType() uint {
+func (m *Communication_Message_NavigationVisualPath_Report) GetType() uint {
 	return 3
 }
-func (m *Communication_Message_NavigationVisual_Report) GetSubType() uint {
+func (m *Communication_Message_NavigationVisualPath_Report) GetSubType() uint {
 	return 4
 }
-func (m *Communication_Message_NavigationVisual_Report) Encode() string {
+func (m *Communication_Message_NavigationVisualPath_Report) Encode() string {
 	encoded, _ := json.Marshal(m)
 	return string(encoded)
 }
